@@ -1,0 +1,16 @@
+
+# python
+__pycache__
+venv
+*.egg-info
+dist
+
+# snow leopard build
+sl_build
+
+# snow leopard config
+local.cfg
+
+# misc
+.DS_Store
+.env
