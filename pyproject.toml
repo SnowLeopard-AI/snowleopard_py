@@ -21,7 +21,7 @@ classifiers = [
 ]
 
 [project.scripts]
-snowleopard = "snowleopard:main"
+snowy = "snowleopard.cli:main"
 
 [build-system]
 requires = ["hatchling"]
