@@ -5,6 +5,8 @@ dynamic = ["version"]
 description = "snowleopard.ai client library"
 
 readme = "README.md"
+license = {file = "LICENSE"}
+
 authors = [
     { name = "Snowy", email = "hello@snowleopard.ai" }
 ]
