@@ -3,9 +3,8 @@ from pathlib import Path
 from urllib.request import Request
 
 import pytest
-from snowleopard.client import SnowLeopardClient
 from snowleopard.async_client import AsyncSnowLeopardClient
-
+from snowleopard.client import SnowLeopardClient
 
 CASSETTES_DIR = Path(__file__).parent / "cassettes"
 HOW_MANY_SUPERHEROES = CASSETTES_DIR / "how_many_superheroes.yaml"
@@ -47,6 +46,11 @@ def client(token, loc):
 @pytest.fixture
 def async_client(token, loc):
     return AsyncSnowLeopardClient(loc=loc, token=token)
+
+
+@pytest.fixture(params=["client", "async_client"])
+def any_client(request) -> SnowLeopardClient | AsyncSnowLeopardClient:
+    return request.getfixturevalue(request.param)
 
 
 @pytest.fixture

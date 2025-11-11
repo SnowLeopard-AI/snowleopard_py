@@ -33,7 +33,8 @@ class AsyncSnowLeopardClient:
         self.client = httpx.AsyncClient(
             base_url=loc,
             headers=headers,
-            timeout=timeout or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
+            timeout=timeout
+            or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
         )
 
     async def retrieve(self, datafile_id: str, user_query: str) -> RetrieveResponse:
