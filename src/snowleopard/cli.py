@@ -5,8 +5,7 @@ import argparse
 from typing import List, Optional
 
 from httpx import HTTPStatusError
-from snowleopard import __version__
-from snowleopard.client import SnowLeopardClient
+from snowleopard import __version__, SnowLeopardClient
 from snowleopard.models import RetrieveResponseError
 
 
