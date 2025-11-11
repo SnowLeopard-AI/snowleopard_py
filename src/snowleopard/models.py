@@ -7,13 +7,26 @@ from typing import Any, Optional
 
 @dataclass
 class RetrieveResponse:
+    responseObjType = "retrieveResponse"
+
     callId: str
     data: list[SchemaData]
     responseStatus: ResponseStatus
 
 
 @dataclass
+class RetrieveResponseError:
+    responseObjType = "apiError"
+
+    callId: str
+    responseStatus: str
+    description: str
+
+
+@dataclass
 class SchemaData:
+    responseObjType = "schemaData"
+
     schemaId: str
     schemaType: str
     query: str
@@ -31,3 +44,22 @@ class ResponseStatus(StrEnum):
     AUTHORIZATION_FAILED = "AUTHORIZATION_FAILED"
     LLM_ERROR = "LLM_ERROR"
     LLM_TOKEN_LIMIT_REACHED = "LLM_TOKEN_LIMIT_REACHED"
+
+
+_PARSE_OBJS = {
+    o.responseObjType: o for o in (RetrieveResponse, RetrieveResponseError, SchemaData)
+}
+
+
+def parse(obj):
+    if isinstance(obj, dict):
+        kind = _PARSE_OBJS.get(obj.get("__type__"))
+        return (
+            kind(**{k: parse(v) for k, v in obj.items() if k != "__type__"})
+            if kind
+            else obj
+        )
+    elif isinstance(obj, list):
+        return [parse(v) for v in obj]
+    else:
+        return obj

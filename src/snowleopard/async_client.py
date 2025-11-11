@@ -2,8 +2,7 @@ import os
 from typing import Optional
 
 import httpx
-from snowleopard.errors import APIError
-from snowleopard.models import RetrieveResponse, SchemaData, ResponseStatus
+from snowleopard.models import RetrieveResponse, parse, RetrieveResponseError
 
 
 class AsyncSnowLeopardClient:
@@ -37,45 +36,19 @@ class AsyncSnowLeopardClient:
             or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
         )
 
-    async def retrieve(self, datafile_id: str, user_query: str) -> RetrieveResponse:
+    async def retrieve(
+        self, datafile_id: str, user_query: str
+    ) -> RetrieveResponse | RetrieveResponseError:
         resp = await self.client.post(
             # url=f"/datafiles/{datafile_id}/retrieve",
             url=f"api/self/datafiles/{datafile_id}/proxy/retrieve",
             json={"userQuery": user_query},
         )
-        if resp.status_code >= 300 and resp.status_code != 409:
-            raise APIError(resp.reason_phrase, resp)
-
-        resp_json = resp.json()
-
-        if "__type__" not in resp_json:
-            raise APIError('Unable to parse response without "__type__" field', resp)
-
-        response_type = resp_json["__type__"]
-        if response_type == "apiError":
-            raise APIError(resp_json["description"], resp)
-        elif response_type == "httpError":
-            raise APIError(resp_json["description"], resp)
-        elif response_type == "retrieveResponse":
-            # todo, we need to parse this in a less terrible way, but unsure if we want to introduce additional dependencies
-            return RetrieveResponse(
-                callId=resp_json["callId"],
-                data=[
-                    SchemaData(
-                        schemaId=d["schemaId"],
-                        schemaType=d["schemaType"],
-                        query=d["query"],
-                        rows=d["rows"],
-                        querySummary=d["querySummary"],
-                        rowMax=d["rowMax"],
-                        isTrimmed=d["isTrimmed"],
-                    )
-                    for d in resp_json["data"]
-                ],
-                responseStatus=ResponseStatus(resp_json["responseStatus"]),
-            )
-        else:
-            raise APIError(f'unknown response type "{response_type}"', resp)
+        try:
+            return parse(resp.json())
+        except Exception:
+            resp.raise_for_status()
+            raise
 
     async def __aenter__(self):
         await self.client.__aenter__()

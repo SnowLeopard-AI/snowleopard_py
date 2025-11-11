@@ -4,9 +4,10 @@ import sys
 import argparse
 from typing import List, Optional
 
+from httpx import HTTPStatusError
 from snowleopard import __version__
 from snowleopard.client import SnowLeopardClient
-from snowleopard.errors import SLError
+from snowleopard.models import RetrieveResponseError
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -51,7 +52,9 @@ def main(args: Optional[List[str]] = None) -> None:
             with _get_client(parsed_args) as client:
                 resp = client.retrieve(parsed_args.datafile, parsed_args.question)
                 print(json.dumps(dataclasses.asdict(resp)))
-        except SLError as e:
+                if isinstance(resp, RetrieveResponseError):
+                    sys.exit(1)
+        except HTTPStatusError as e:
             print(str(e), file=sys.stderr)
             sys.exit(1)
     elif parsed_args.command is None:

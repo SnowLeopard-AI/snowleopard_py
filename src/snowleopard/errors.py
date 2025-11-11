@@ -5,7 +5,7 @@ class SLError(Exception):
     pass
 
 
-class APIError(SLError):
+class SLAPIError(SLError):
     response: httpx.Response
 
     def __init__(self, description, response: httpx.Response):

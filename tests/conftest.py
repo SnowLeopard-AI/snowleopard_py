@@ -23,7 +23,7 @@ def vcr_config(superheroes, loc):
     return {
         "filter_headers": ["authorization"],
         "before_record_request": replace_subs,
-        "record_mode": os.environ.get("SNOWLEOPARD_TEST_RECORD_MODE", "none")
+        "record_mode": os.environ.get("SNOWLEOPARD_TEST_RECORD_MODE", "none"),
     }
 
 
