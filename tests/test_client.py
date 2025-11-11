@@ -1,11 +1,11 @@
 from inspect import isawaitable
 from pathlib import Path
-from typing import Awaitable, TypeVar
+from typing import AsyncIterator, Awaitable, Iterator, TypeVar
 
 import pytest
 from snowleopard.models import RetrieveResponseError, ResponseStatus
 
-from .conftest import HOW_MANY_SUPERHEROES, CASSETTES_DIR
+from .conftest import HOW_MANY_SUPERHEROES, CASSETTES_DIR, HOW_MANY_SUPERHEROES_RESPONSE
 
 T = TypeVar("T")
 
@@ -14,6 +14,15 @@ async def maybe_await(obj: T | Awaitable[T]) -> T:
     if isawaitable(obj):
         obj = await obj
     return obj
+
+
+async def maybe_await_iter(obj: Iterator[T] | AsyncIterator[T]) -> AsyncIterator[T]:
+    if hasattr(obj, '__anext__'):
+        async for item in obj:
+            yield item
+    else:
+        for item in obj:
+            yield item
 
 
 # explicitly set the default cassette loc since parameterized tests would create 2 recordings rather than 1
@@ -56,3 +65,10 @@ async def test_retrieve_with_bad_query(any_client, superheroes):
     # currently api is not returning this as error kind, which is definitely confusing
     # assert isinstance(resp, RetrieveResponseError)
     assert resp.responseStatus == ResponseStatus.INTERNAL_SERVER_ERROR
+
+
+@cassette(HOW_MANY_SUPERHEROES_RESPONSE)
+async def test_response_with_success(any_client, superheroes, how_many_superheroes_q):
+    resp = [o async for o in maybe_await_iter(any_client.response(superheroes, how_many_superheroes_q))]
+    assert {o.objType for o in resp} == {'responseStart', 'responseData', 'responseResult'}
+    assert "6895" in str(resp)

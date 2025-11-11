@@ -2,21 +2,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any, Optional
+from typing import Any, Union
 
 
 @dataclass
 class RetrieveResponse:
-    responseObjType = "retrieveResponse"
+    objType = "retrieveResponse"
 
     callId: str
-    data: list[SchemaData]
+    data: list[SchemaData | ErrorSchemaData]
     responseStatus: ResponseStatus
 
 
 @dataclass
 class RetrieveResponseError:
-    responseObjType = "apiError"
+    objType = "apiError"
 
     callId: str
     responseStatus: str
@@ -25,15 +25,64 @@ class RetrieveResponseError:
 
 @dataclass
 class SchemaData:
-    responseObjType = "schemaData"
+    objType = "schemaData"
 
     schemaId: str
     schemaType: str
     query: str
     rows: list[dict[str, Any]]
     querySummary: dict[str, Any]
-    rowMax: Optional[int]
+    rowMax: int
     isTrimmed: bool
+    callId: str = None
+
+
+@dataclass
+class ErrorSchemaData:
+    objType = "errorSchemaData"
+
+    schemaType: str
+    schemaId: str
+    query: str
+    error: str
+    querySummary: dict[str, Any]
+    datastoreExceptionInfo: str | None = None
+    callId: str = None
+
+
+@dataclass
+class ResponseStart:
+    objType = "responseStart"
+
+    callId: str
+    userQuery: str
+
+
+@dataclass
+class ResponseData:
+    objType = "responseData"
+
+    callId: str
+    data: list[Union[SchemaData, ErrorSchemaData]]
+
+
+@dataclass
+class EarlyTermination:
+    objType = "earlyTermination"
+
+    callId: str
+    responseStatus: ResponseStatus
+    reason: str
+    extra: dict
+
+
+@dataclass
+class ResponseLLMResult:
+    objType = "responseResult"
+
+    callId: str
+    responseStatus: ResponseStatus
+    llmResponse: dict[str, Any]
 
 
 class ResponseStatus(StrEnum):
@@ -47,8 +96,28 @@ class ResponseStatus(StrEnum):
 
 
 _PARSE_OBJS = {
-    o.responseObjType: o for o in (RetrieveResponse, RetrieveResponseError, SchemaData)
+    o.objType: o
+    for o in (
+        RetrieveResponse,
+        RetrieveResponseError,
+        SchemaData,
+        ErrorSchemaData,
+        ResponseStart,
+        ResponseData,
+        EarlyTermination,
+        ResponseLLMResult,
+    )
 }
+
+RetrieveResponseObjects = RetrieveResponse | RetrieveResponseError
+
+ResponseDataObjects = (
+        ErrorSchemaData
+        | ResponseStart
+        | ResponseData
+        | EarlyTermination
+        | ResponseLLMResult
+)
 
 
 def parse(obj):

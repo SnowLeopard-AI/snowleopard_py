@@ -1,11 +1,12 @@
-import os
-from typing import Optional
+import json
+from typing import Optional, Generator
 
 import httpx
-from snowleopard.models import RetrieveResponse, RetrieveResponseError, parse
+from snowleopard.client_base import SLClientBase
+from snowleopard.models import parse, RetrieveResponseObjects, ResponseDataObjects
 
 
-class SnowLeopardClient:
+class SnowLeopardClient(SLClientBase):
     client: httpx.Client
 
     def __init__(
@@ -14,41 +15,31 @@ class SnowLeopardClient:
         token: Optional[str] = None,
         timeout: Optional[httpx.Timeout] = None,
     ):
-        loc = loc or os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai")
-        if not loc:
-            raise ValueError(
-                'Missing required argument "loc" and envar "SNOWLEOPARD_LOC" not set'
-            )
-        token = token or os.environ.get("SNOWLEOPARD_API_KEY")
-        if token is None:
-            raise ValueError(
-                'Missing required argument "token" and envar "SNOWLEOPARD_API_KEY" not set'
-            )
-
-        headers = {"Accept": "application/json"}
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
-
+        config = self._config(loc, token, timeout)
         self.client = httpx.Client(
-            base_url=loc,
-            headers=headers,
-            timeout=timeout
-            or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
+            base_url=config.loc,
+            headers=config.headers(),
+            timeout=config.timeout
         )
 
     def retrieve(
         self, datafile_id: str, user_query: str
-    ) -> RetrieveResponse | RetrieveResponseError:
+    ) -> RetrieveResponseObjects:
         resp = self.client.post(
             # url=f"/datafiles/{datafile_id}/retrieve",
             url=f"api/self/datafiles/{datafile_id}/proxy/retrieve",
             json={"userQuery": user_query},
         )
-        try:
-            return parse(resp.json())
-        except Exception:
-            resp.raise_for_status()
-            raise
+        return self._parse_retrieve(resp)
+
+    def response(self, datafile_id: str, user_query: str) -> Generator[ResponseDataObjects, None, None]:
+        resp = self.client.post(
+            url=f"api/self/datafiles/{datafile_id}/proxy/response",
+            json={"userQuery": user_query},
+        )
+        resp.raise_for_status()
+        for line in resp.iter_lines():
+            yield parse(json.loads(line))
 
     def __enter__(self):
         self.client.__enter__()
