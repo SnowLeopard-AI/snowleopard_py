@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from httpx import HTTPStatusError
 from snowleopard import __version__, SnowLeopardClient
-from snowleopard.models import RetrieveResponseError
+from snowleopard.models import RetrieveResponseError, ErrorSchemaData
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -28,6 +28,12 @@ def _create_parser() -> argparse.ArgumentParser:
     )
     retrieve.add_argument("datafile", type=str, help="Datafile to query")
     retrieve.add_argument("question", type=str, help="Natural language query")
+
+    response = subparsers.add_parser(
+        "response", help="Get streaming response from natural language query"
+    )
+    response.add_argument("datafile", type=str, help="Datafile to query")
+    response.add_argument("question", type=str, help="Natural language query")
 
     return parser
 
@@ -53,6 +59,14 @@ def main(args: Optional[List[str]] = None) -> None:
                 print(json.dumps(dataclasses.asdict(resp)))
                 if isinstance(resp, RetrieveResponseError):
                     sys.exit(1)
+        except HTTPStatusError as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
+    elif parsed_args.command == "response":
+        try:
+            with _get_client(parsed_args) as client:
+                for chunk in client.response(parsed_args.datafile, parsed_args.question):
+                    print(json.dumps(dataclasses.asdict(chunk)))
         except HTTPStatusError as e:
             print(str(e), file=sys.stderr)
             sys.exit(1)

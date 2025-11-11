@@ -3,7 +3,7 @@ import json
 import pytest
 from snowleopard.cli import main
 
-from .conftest import HOW_MANY_SUPERHEROES
+from .conftest import HOW_MANY_SUPERHEROES, HOW_MANY_SUPERHEROES_RESPONSE
 
 
 def test_main_no_args(capsys):
@@ -21,7 +21,16 @@ def test_main_no_args(capsys):
 @pytest.mark.vcr
 def test_retrieve_command(capsys, loc, superheroes, token, how_many_superheroes_q):
     main(["-l", loc, "-t", "token", "retrieve", superheroes, how_many_superheroes_q])
+    stdout = capsys.readouterr().out
+    assert "6895" in stdout
+    assert "callId" in json.loads(stdout)
 
-    captured = capsys.readouterr()
-    assert "6895" in captured.out
-    assert json.loads(captured.out)
+
+@pytest.mark.default_cassette(HOW_MANY_SUPERHEROES_RESPONSE)
+@pytest.mark.vcr
+def test_response_command(capsys, loc, superheroes, token, how_many_superheroes_q):
+    main(["-l", loc, "-t", "token", "response", superheroes, how_many_superheroes_q])
+    stdout = capsys.readouterr().out
+    assert "6895" in stdout
+    for line in stdout.splitlines():
+        assert "callId" in json.loads(line)
