@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from typing import Optional
+from urllib.parse import urljoin
 
 import httpx
 from snowleopard.models import parse
@@ -13,7 +14,7 @@ class SLConfig:
     timeout: httpx.Timeout
 
     def headers(self):
-        headers = {"Accept": "application/json"}
+        headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         return headers
@@ -35,7 +36,12 @@ class SLClientBase:
         timeout = timeout or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0)
         return SLConfig(loc, token, timeout)
 
-    def _parse_retrieve(self, resp):
+    @staticmethod
+    def _build_path(datafile_id: str, endpoint: str) -> str:
+        return f"datafiles/{datafile_id}/{endpoint}"
+
+    @staticmethod
+    def _parse_retrieve(resp):
         try:
             return parse(resp.json())
         except Exception:

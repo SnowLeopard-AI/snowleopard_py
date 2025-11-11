@@ -18,7 +18,7 @@ HOW_MANY_SUPERHEROES_RESPONSE = str(CASSETTES_DIR / "how_many_superheroes_respon
 def vcr_config(superheroes, loc):
     def replace_subs(request: Request):
         request.uri = request.uri.replace(superheroes, "superheroes_dfid")
-        request.uri = request.uri.replace(loc.rstrip("/"), "https://dev.snowleopard.ai")
+        request.uri = request.uri.replace(loc.rstrip("/"), "https://api.snowleopard.ai")
         return request
 
     return {
@@ -41,7 +41,7 @@ def token():
 
 @pytest.fixture(scope="module")
 def loc():
-    return os.environ.get("SNOWLEOPARD_LOC", "https://dev.snowleopard.ai/")
+    return os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai/")
 
 
 @pytest.fixture

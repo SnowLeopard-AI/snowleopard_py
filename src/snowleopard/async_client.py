@@ -26,8 +26,7 @@ class AsyncSnowLeopardClient(SLClientBase):
         self, datafile_id: str, user_query: str
     ) -> RetrieveResponseObjects:
         resp = await self.client.post(
-            # url=f"/datafiles/{datafile_id}/retrieve",
-            url=f"api/self/datafiles/{datafile_id}/proxy/retrieve",
+            url=self._build_path(datafile_id, "retrieve"),
             json={"userQuery": user_query},
         )
         return self._parse_retrieve(resp)
@@ -35,7 +34,7 @@ class AsyncSnowLeopardClient(SLClientBase):
     async def response(self, datafile_id: str, user_query: str) -> AsyncGenerator[ResponseDataObjects, None]:
         async with self.client.stream(
             "POST",
-            f"api/self/datafiles/{datafile_id}/proxy/response",
+            self._build_path(datafile_id, "response"),
             json={"userQuery": user_query},
         ) as resp:
             resp.raise_for_status()

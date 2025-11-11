@@ -26,15 +26,14 @@ class SnowLeopardClient(SLClientBase):
         self, datafile_id: str, user_query: str
     ) -> RetrieveResponseObjects:
         resp = self.client.post(
-            # url=f"/datafiles/{datafile_id}/retrieve",
-            url=f"api/self/datafiles/{datafile_id}/proxy/retrieve",
+            url=self._build_path(datafile_id, "retrieve"),
             json={"userQuery": user_query},
         )
         return self._parse_retrieve(resp)
 
     def response(self, datafile_id: str, user_query: str) -> Generator[ResponseDataObjects, None, None]:
         resp = self.client.post(
-            url=f"api/self/datafiles/{datafile_id}/proxy/response",
+            url=self._build_path(datafile_id, "response"),
             json={"userQuery": user_query},
         )
         resp.raise_for_status()

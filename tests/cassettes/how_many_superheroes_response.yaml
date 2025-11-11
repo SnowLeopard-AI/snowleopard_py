@@ -17,7 +17,7 @@ interactions:
       user-agent:
       - python-httpx/0.28.1
     method: POST
-    uri: https://dev.snowleopard.ai/api/self/datafiles/superheroes_dfid/proxy/response
+    uri: https://api.snowleopard.ai/datafiles/superheroes_dfid/response
   response:
     body:
       string: '{"callId": "79395651-ef9e-4a82-9e9f-d94f2bd2356a", "userQuery": "How
