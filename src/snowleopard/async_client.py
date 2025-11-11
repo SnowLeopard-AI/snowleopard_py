@@ -6,8 +6,8 @@ from snowleopard.errors import APIError
 from snowleopard.models import RetrieveResponse, SchemaData, ResponseStatus
 
 
-class SnowLeopardClient:
-    client: httpx.Client
+class AsyncSnowLeopardClient:
+    client: httpx.AsyncClient
 
     def __init__(
         self,
@@ -30,15 +30,14 @@ class SnowLeopardClient:
         if token:
             headers["Authorization"] = f"Bearer {token}"
 
-        self.client = httpx.Client(
+        self.client = httpx.AsyncClient(
             base_url=loc,
             headers=headers,
-            timeout=timeout
-            or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
+            timeout=timeout or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
         )
 
-    def retrieve(self, datafile_id: str, user_query: str) -> RetrieveResponse:
-        resp = self.client.post(
+    async def retrieve(self, datafile_id: str, user_query: str) -> RetrieveResponse:
+        resp = await self.client.post(
             # url=f"/datafiles/{datafile_id}/retrieve",
             url=f"api/self/datafiles/{datafile_id}/proxy/retrieve",
             json={"userQuery": user_query},
@@ -77,12 +76,12 @@ class SnowLeopardClient:
         else:
             raise APIError(f'unknown response type "{response_type}"', resp)
 
-    def __enter__(self):
-        self.client.__enter__()
+    async def __aenter__(self):
+        await self.client.__aenter__()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.client.__exit__(exc_type, exc_val, exc_tb)
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client.__aexit__(exc_type, exc_val, exc_tb)
 
-    def close(self):
-        self.client.close()
+    async def close(self):
+        await self.client.aclose()

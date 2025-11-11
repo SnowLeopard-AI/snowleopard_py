@@ -48,8 +48,9 @@ def main(args: Optional[List[str]] = None) -> None:
 
     if parsed_args.command == "retrieve":
         try:
-            resp = _get_client(parsed_args).retrieve(parsed_args.datafile, parsed_args.question)
-            print(json.dumps(dataclasses.asdict(resp)))
+            with _get_client(parsed_args) as client:
+                resp = client.retrieve(parsed_args.datafile, parsed_args.question)
+                print(json.dumps(dataclasses.asdict(resp)))
         except SLError as e:
             print(str(e), file=sys.stderr)
             sys.exit(1)
