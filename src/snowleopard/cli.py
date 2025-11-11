@@ -47,29 +47,37 @@ def _get_client(parsed_args):
     return client
 
 
+def _retrieve(parsed_args):
+    try:
+        with _get_client(parsed_args) as client:
+            resp = client.retrieve(parsed_args.datafile, parsed_args.question)
+            print(json.dumps(dataclasses.asdict(resp)))
+            if isinstance(resp, RetrieveResponseError):
+                sys.exit(1)
+    except HTTPStatusError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+
+
+def _response(parsed_args):
+    try:
+        with _get_client(parsed_args) as client:
+            for chunk in client.response(parsed_args.datafile, parsed_args.question):
+                print(json.dumps(dataclasses.asdict(chunk)))
+    except HTTPStatusError as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+
+
 def main(args: Optional[List[str]] = None) -> None:
     """CLI entry point for snowleopard."""
     parser = _create_parser()
     parsed_args = parser.parse_args(args=args)
 
     if parsed_args.command == "retrieve":
-        try:
-            with _get_client(parsed_args) as client:
-                resp = client.retrieve(parsed_args.datafile, parsed_args.question)
-                print(json.dumps(dataclasses.asdict(resp)))
-                if isinstance(resp, RetrieveResponseError):
-                    sys.exit(1)
-        except HTTPStatusError as e:
-            print(str(e), file=sys.stderr)
-            sys.exit(1)
+        _retrieve(parsed_args)
     elif parsed_args.command == "response":
-        try:
-            with _get_client(parsed_args) as client:
-                for chunk in client.response(parsed_args.datafile, parsed_args.question):
-                    print(json.dumps(dataclasses.asdict(chunk)))
-        except HTTPStatusError as e:
-            print(str(e), file=sys.stderr)
-            sys.exit(1)
+        _response(parsed_args)
     elif parsed_args.command is None:
         parser.print_help(file=sys.stderr)
         sys.exit(1)
