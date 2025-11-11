@@ -17,7 +17,8 @@ def test_main_no_args(capsys):
     assert "usage:" in captured.out
 
 
-@pytest.mark.vcr(HOW_MANY_SUPERHEROES)
+@pytest.mark.default_cassette(HOW_MANY_SUPERHEROES)
+@pytest.mark.vcr
 def test_retrieve_command(capsys, loc, superheroes, token, how_many_superheroes_q):
     main(["-l", loc, "-t", "token", "retrieve", superheroes, how_many_superheroes_q])
 

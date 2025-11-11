@@ -2,7 +2,7 @@ import os
 from typing import Optional
 
 import httpx
-from snowleopard.errors import APIError
+from snowleopard.errors import APIError, NotInSchema
 from snowleopard.models import RetrieveResponse, SchemaData, ResponseStatus
 
 
@@ -53,11 +53,19 @@ class SnowLeopardClient:
 
         response_type = resp_json["__type__"]
         if response_type == "apiError":
+            if resp_json.get("responseStatus") == ResponseStatus.NOT_FOUND_IN_SCHEMA:
+                raise NotInSchema(resp_json["description"])
             raise APIError(resp_json["description"], resp)
         elif response_type == "httpError":
             raise APIError(resp_json["description"], resp)
         elif response_type == "retrieveResponse":
-            # todo, we need to parse this in a less terrible way, but unsure if we want to introduce additional dependencies
+            status = resp_json["responseStatus"]
+            if status != ResponseStatus.SUCCESS:
+                raise APIError(
+                    description=f"Snowleopard retrieve endpoint had non-success status {status}",
+                    response=resp,
+                )
+
             return RetrieveResponse(
                 callId=resp_json["callId"],
                 data=[
@@ -65,14 +73,14 @@ class SnowLeopardClient:
                         schemaId=d["schemaId"],
                         schemaType=d["schemaType"],
                         query=d["query"],
-                        rows=d["rows"],
+                        rows=d.get("rows", []),
                         querySummary=d["querySummary"],
-                        rowMax=d["rowMax"],
-                        isTrimmed=d["isTrimmed"],
+                        rowMax=d.get("rowMax"),
+                        isTrimmed=d.get("isTrimmed"),
                     )
                     for d in resp_json["data"]
                 ],
-                responseStatus=ResponseStatus(resp_json["responseStatus"]),
+                responseStatus=ResponseStatus(status),
             )
         else:
             raise APIError(f'unknown response type "{response_type}"', resp)

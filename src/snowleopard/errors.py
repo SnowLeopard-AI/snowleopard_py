@@ -13,9 +13,5 @@ class APIError(SLError):
         self.response = response
 
 
-class StatusError(SLError):
-    status: str
-
-    def __init__(self, message, status):
-        super().__init__(message)
-        self.status = status
+class NotInSchema(SLError):
+    pass

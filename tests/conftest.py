@@ -3,22 +3,27 @@ from pathlib import Path
 from urllib.request import Request
 
 import pytest
+from dotenv import load_dotenv
 from snowleopard.async_client import AsyncSnowLeopardClient
 from snowleopard.client import SnowLeopardClient
 
+load_dotenv()
+
 CASSETTES_DIR = Path(__file__).parent / "cassettes"
-HOW_MANY_SUPERHEROES = CASSETTES_DIR / "how_many_superheroes.yaml"
+HOW_MANY_SUPERHEROES = str(CASSETTES_DIR / "how_many_superheroes.yaml")
 
 
 @pytest.fixture(scope="module")
-def vcr_config(superheroes):
+def vcr_config(superheroes, loc):
     def replace_subs(request: Request):
         request.uri = request.uri.replace(superheroes, "superheroes_dfid")
+        request.uri = request.uri.replace(loc.rstrip("/"), "https://dev.snowleopard.ai")
         return request
 
     return {
         "filter_headers": ["authorization"],
         "before_record_request": replace_subs,
+        "record_mode": os.environ.get("SNOWLEOPARD_TEST_RECORD_MODE", "none")
     }
 
 
@@ -33,9 +38,9 @@ def token():
     return os.environ.get("SNOWLEOPARD_API_KEY", "test_token")
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def loc():
-    return "https://dev.snowleopard.ai/"
+    return os.environ.get("SNOWLEOPARD_LOC", "https://dev.snowleopard.ai/")
 
 
 @pytest.fixture
