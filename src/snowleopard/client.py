@@ -10,10 +10,16 @@ class SnowLeopardClient:
     client: httpx.Client
 
     def __init__(
-        self, loc: str = "https://api.snowleopard.ai", token: Optional[str] = None
+        self,
+        loc: str = None,
+        token: Optional[str] = None,
+        timeout: Optional[httpx.Timeout] = None,
     ):
+        loc = loc or os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai")
         if not loc:
-            raise ValueError('Missing required argument "loc"')
+            raise ValueError(
+                'Missing required argument "loc" and envar "SNOWLEOPARD_LOC" not set'
+            )
         token = token or os.environ.get("SNOWLEOPARD_API_KEY")
         if token is None:
             raise ValueError(
@@ -27,7 +33,8 @@ class SnowLeopardClient:
         self.client = httpx.Client(
             base_url=loc,
             headers=headers,
-            timeout=httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
+            timeout=timeout
+            or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0),
         )
 
     def retrieve(self, datafile_id: str, user_query: str) -> RetrieveResponse:

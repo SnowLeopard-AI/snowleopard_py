@@ -1,36 +1,58 @@
+import dataclasses
+import json
 import sys
 import argparse
 from typing import List, Optional
 
 from snowleopard import __version__
+from snowleopard.client import SnowLeopardClient
+from snowleopard.errors import SLError
 
 
-def create_parser() -> argparse.ArgumentParser:
+def _create_parser() -> argparse.ArgumentParser:
     """Create and return the argument parser."""
     parser = argparse.ArgumentParser(
         prog="snowy", description="SnowLeopard.ai client library CLI"
     )
-
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
+    parser.add_argument("--loc", "-l", required=False, help="Snowleopard location")
+    parser.add_argument("--token", "-t", required=False, help="Snowleopard token")
+
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # Add a simple 'hello' command as an example
-    hello_parser = subparsers.add_parser("hello", help="Print a greeting")
-    hello_parser.add_argument("--name", type=str, default="World", help="Name to greet")
+    retrieve = subparsers.add_parser(
+        "retrieve", help="Retrieve data from natural language"
+    )
+    retrieve.add_argument("datafile", type=str, help="Datafile to query")
+    retrieve.add_argument("question", type=str, help="Natural language query")
 
     return parser
 
 
+def _get_client(parsed_args):
+    try:
+        client = SnowLeopardClient(parsed_args.loc, parsed_args.token)
+    except Exception as e:
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+    return client
+
+
 def main(args: Optional[List[str]] = None) -> None:
     """CLI entry point for snowleopard."""
-    parser = create_parser()
+    parser = _create_parser()
     parsed_args = parser.parse_args(args=args)
 
-    if parsed_args.command == "hello":
-        print(f"Hello from snowleopard, {parsed_args.name}!")
+    if parsed_args.command == "retrieve":
+        try:
+            resp = _get_client(parsed_args).retrieve(parsed_args.datafile, parsed_args.question)
+            print(json.dumps(dataclasses.asdict(resp)))
+        except SLError as e:
+            print(str(e), file=sys.stderr)
+            sys.exit(1)
     elif parsed_args.command is None:
-        parser.print_help()
+        parser.print_help(file=sys.stderr)
         sys.exit(1)

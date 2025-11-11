@@ -1,27 +1,26 @@
+import json
+
+import pytest
 from snowleopard.cli import main
+
+from .conftest import HOW_MANY_SUPERHEROES
 
 
 def test_main_no_args(capsys):
     """Test that main function prints help when no command is given."""
     try:
-        main([])
+        main(["-h"])
     except SystemExit as e:
-        assert e.code == 1
+        assert e.code == 0
 
     captured = capsys.readouterr()
     assert "usage:" in captured.out
 
 
-def test_hello_command(capsys):
-    """Test the hello command with default name."""
-    main(["hello"])
+@pytest.mark.vcr(HOW_MANY_SUPERHEROES)
+def test_retrieve_command(capsys, loc, superheroes, token, how_many_superheroes_q):
+    main(["-l", loc, "-t", "token", "retrieve", superheroes, how_many_superheroes_q])
 
     captured = capsys.readouterr()
-    assert "Hello from snowleopard, World!" in captured.out
-
-
-def test_hello_command_with_name(capsys):
-    """Test the hello command with custom name."""
-    main(["hello", "--name", "Alice"])
-    captured = capsys.readouterr()
-    assert "Hello from snowleopard, Alice!" in captured.out
+    assert "6895" in captured.out
+    assert json.loads(captured.out)

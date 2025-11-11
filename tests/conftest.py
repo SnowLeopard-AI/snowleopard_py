@@ -12,13 +12,13 @@ HOW_MANY_SUPERHEROES = CASSETTES_DIR / "how_many_superheroes.yaml"
 
 @pytest.fixture(scope="module")
 def vcr_config(superheroes):
-    def replace_dfid(request: Request):
+    def replace_subs(request: Request):
         request.uri = request.uri.replace(superheroes, "superheroes_dfid")
         return request
 
     return {
         "filter_headers": ["authorization"],
-        "before_record_request": replace_dfid,
+        "before_record_request": replace_subs,
     }
 
 
@@ -34,5 +34,14 @@ def token():
 
 
 @pytest.fixture
-def client(token):
-    return SnowLeopardClient(loc="https://dev.snowleopard.ai/", token=token)
+def loc():
+    return "https://dev.snowleopard.ai/"
+
+
+@pytest.fixture
+def client(token, loc):
+    return SnowLeopardClient(loc=loc, token=token)
+
+@pytest.fixture
+def how_many_superheroes_q():
+    return "How many superheroes are there?"
