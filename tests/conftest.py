@@ -3,25 +3,36 @@ from pathlib import Path
 from urllib.request import Request
 
 import pytest
+from snowleopard.client import SnowLeopardClient
+
 
 CASSETTES_DIR = Path(__file__).parent / "cassettes"
-
 HOW_MANY_SUPERHEROES = CASSETTES_DIR / "how_many_superheroes.yaml"
 
 
 @pytest.fixture(scope="module")
-def dfid():
-    # when client supports uploading datafiles, this will become part of workflow
-    return os.environ.get("SNOWLEOPARD_PY_TEST_DFID", "test_dfid")
-
-
-@pytest.fixture(scope='module')
-def vcr_config(dfid):
+def vcr_config(superheroes):
     def replace_dfid(request: Request):
-        request.uri = request.uri.replace(dfid, "test_dfid")
+        request.uri = request.uri.replace(superheroes, "superheroes_dfid")
         return request
 
     return {
         "filter_headers": ["authorization"],
         "before_record_request": replace_dfid,
     }
+
+
+@pytest.fixture(scope="module")
+def superheroes():
+    # when client supports uploading datafiles, this will become part of workflow
+    return os.environ.get("SUPERHEROES_DFID", "superheroes_dfid")
+
+
+@pytest.fixture
+def token():
+    return os.environ.get("SNOWLEOPARD_API_KEY", "test_token")
+
+
+@pytest.fixture
+def client(token):
+    return SnowLeopardClient(loc="https://dev.snowleopard.ai/", token=token)

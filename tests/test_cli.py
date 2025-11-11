@@ -14,7 +14,7 @@ def test_main_no_args(capsys):
 
 def test_hello_command(capsys):
     """Test the hello command with default name."""
-    main(['hello'])
+    main(["hello"])
 
     captured = capsys.readouterr()
     assert "Hello from snowleopard, World!" in captured.out
@@ -22,6 +22,6 @@ def test_hello_command(capsys):
 
 def test_hello_command_with_name(capsys):
     """Test the hello command with custom name."""
-    main(['hello', '--name', 'Alice'])
+    main(["hello", "--name", "Alice"])
     captured = capsys.readouterr()
     assert "Hello from snowleopard, Alice!" in captured.out
