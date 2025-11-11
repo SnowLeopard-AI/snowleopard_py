@@ -4,12 +4,22 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Optional
 
+from snowleopard.errors import StatusError
+
 
 @dataclass
 class RetrieveResponse:
     callId: str
     data: list[SchemaData]
     responseStatus: ResponseStatus
+
+    def raise_for_status(self):
+        if self.responseStatus != ResponseStatus.SUCCESS:
+            raise StatusError(
+                message=f"Snowleopard retrieve endpoint had non-success status {self.responseStatus}",
+                status=self.responseStatus,
+            )
+
 
 
 @dataclass
