@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# copyright 2025 Snow Leopard, Inc
+# released under the MIT license - see LICENSE file
+
 from __future__ import annotations
 
 from dataclasses import dataclass
