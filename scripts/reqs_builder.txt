@@ -1,6 +1,0 @@
-# install packages used for building and publishing
-
-
-# leaving these unpinned for now
-build
-twine
