@@ -5,8 +5,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from enum import StrEnum
+from enum import Enum
 from typing import Any, Union
+
+
+class StrEnum(str, Enum):
+    """String enum compatible with Python 3.8"""
+    pass
 
 
 @dataclass
