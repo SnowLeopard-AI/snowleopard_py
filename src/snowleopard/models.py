@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from enum import StrEnum
 from typing import Any, Union
 
@@ -127,11 +127,12 @@ ResponseDataObjects = (
 def parse(obj):
     if isinstance(obj, dict):
         kind = _PARSE_OBJS.get(obj.get("__type__"))
-        return (
-            kind(**{k: parse(v) for k, v in obj.items() if k != "__type__"})
-            if kind
-            else obj
-        )
+        if kind:
+            keys = {f.name for f in fields(kind)}
+            kwargs = {k: parse(v) for k, v in obj.items() if k in keys}
+            return kind(**kwargs)
+        else:
+            return obj
     elif isinstance(obj, list):
         return [parse(v) for v in obj]
     else:
