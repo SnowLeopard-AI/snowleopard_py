@@ -3,7 +3,7 @@
 # released under the MIT license - see LICENSE file
 
 import json
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Optional, Dict, Any
 
 import httpx
 from snowleopard.client_base import SLClientBase
@@ -21,25 +21,31 @@ class AsyncSnowLeopardClient(SLClientBase):
     ):
         config = self._config(loc, token, timeout)
         self.client = httpx.AsyncClient(
-            base_url=config.loc,
-            headers=config.headers(),
-            timeout=config.timeout
+            base_url=config.loc, headers=config.headers(), timeout=config.timeout
         )
 
     async def retrieve(
-        self, datafile_id: str, user_query: str
+        self,
+        datafile_id: str,
+        user_query: str,
+        known_data: Optional[Dict[str, Any]] = None,
     ) -> RetrieveResponseObjects:
         resp = await self.client.post(
             url=self._build_path(datafile_id, "retrieve"),
-            json={"userQuery": user_query},
+            json=self._build_request_body(user_query, known_data),
         )
         return self._parse_retrieve(resp)
 
-    async def response(self, datafile_id: str, user_query: str) -> AsyncGenerator[ResponseDataObjects, None]:
+    async def response(
+        self,
+        datafile_id: str,
+        user_query: str,
+        known_data: Optional[Dict[str, Any]] = None,
+    ) -> AsyncGenerator[ResponseDataObjects, None]:
         async with self.client.stream(
             "POST",
             self._build_path(datafile_id, "response"),
-            json={"userQuery": user_query},
+            json=self._build_request_body(user_query, known_data),
         ) as resp:
             resp.raise_for_status()
             async for line in resp.aiter_lines():

@@ -3,7 +3,7 @@
 # released under the MIT license - see LICENSE file
 
 import json
-from typing import Optional, Generator
+from typing import Optional, Generator, Dict, Any
 
 import httpx
 from snowleopard.client_base import SLClientBase
@@ -21,24 +21,30 @@ class SnowLeopardClient(SLClientBase):
     ):
         config = self._config(loc, token, timeout)
         self.client = httpx.Client(
-            base_url=config.loc,
-            headers=config.headers(),
-            timeout=config.timeout
+            base_url=config.loc, headers=config.headers(), timeout=config.timeout
         )
 
     def retrieve(
-        self, datafile_id: str, user_query: str
+        self,
+        datafile_id: str,
+        user_query: str,
+        known_data: Optional[Dict[str, Any]] = None,
     ) -> RetrieveResponseObjects:
         resp = self.client.post(
             url=self._build_path(datafile_id, "retrieve"),
-            json={"userQuery": user_query},
+            json=self._build_request_body(user_query, known_data),
         )
         return self._parse_retrieve(resp)
 
-    def response(self, datafile_id: str, user_query: str) -> Generator[ResponseDataObjects, None, None]:
+    def response(
+        self,
+        datafile_id: str,
+        user_query: str,
+        known_data: Optional[Dict[str, Any]] = None,
+    ) -> Generator[ResponseDataObjects, None, None]:
         resp = self.client.post(
             url=self._build_path(datafile_id, "response"),
-            json={"userQuery": user_query},
+            json=self._build_request_body(user_query, known_data),
         )
         resp.raise_for_status()
         for line in resp.iter_lines():

@@ -17,7 +17,7 @@ async def maybe_await(obj: T | Awaitable[T]) -> T:
 
 
 async def maybe_await_iter(obj: Iterator[T] | AsyncIterator[T]) -> AsyncIterator[T]:
-    if hasattr(obj, '__anext__'):
+    if hasattr(obj, "__anext__"):
         async for item in obj:
             yield item
     else:
@@ -69,6 +69,15 @@ async def test_retrieve_with_bad_query(any_client, superheroes):
 
 @cassette(HOW_MANY_SUPERHEROES_RESPONSE)
 async def test_response_with_success(any_client, superheroes, how_many_superheroes_q):
-    resp = [o async for o in maybe_await_iter(any_client.response(superheroes, how_many_superheroes_q))]
-    assert {o.objType for o in resp} == {'responseStart', 'responseData', 'responseResult'}
+    resp = [
+        o
+        async for o in maybe_await_iter(
+            any_client.response(superheroes, how_many_superheroes_q)
+        )
+    ]
+    assert {o.objType for o in resp} == {
+        "responseStart",
+        "responseData",
+        "responseResult",
+    }
     assert "6895" in str(resp)

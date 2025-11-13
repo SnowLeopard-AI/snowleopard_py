@@ -11,7 +11,9 @@ load_dotenv()
 
 CASSETTES_DIR = Path(__file__).parent / "cassettes"
 HOW_MANY_SUPERHEROES = str(CASSETTES_DIR / "how_many_superheroes.yaml")
-HOW_MANY_SUPERHEROES_RESPONSE = str(CASSETTES_DIR / "how_many_superheroes_response.yaml")
+HOW_MANY_SUPERHEROES_RESPONSE = str(
+    CASSETTES_DIR / "how_many_superheroes_response.yaml"
+)
 
 
 @pytest.fixture(scope="module")

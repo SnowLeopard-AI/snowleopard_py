@@ -4,10 +4,10 @@
 
 import os
 from dataclasses import dataclass
-from typing import Optional
-from urllib.parse import urljoin
+from typing import Optional, Dict, Any
 
 import httpx
+
 from snowleopard.models import parse
 
 
@@ -23,9 +23,12 @@ class SLConfig:
             headers["Authorization"] = f"Bearer {self.token}"
         return headers
 
+
 class SLClientBase:
     @staticmethod
-    def _config(loc: Optional[str], token: Optional[str], timeout: Optional[httpx.Timeout]) -> SLConfig:
+    def _config(
+        loc: Optional[str], token: Optional[str], timeout: Optional[httpx.Timeout]
+    ) -> SLConfig:
         loc = loc or os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai")
         if not loc:
             raise ValueError(
@@ -37,12 +40,23 @@ class SLClientBase:
                 'Missing required argument "token" and envar "SNOWLEOPARD_API_KEY" not set'
             )
 
-        timeout = timeout or httpx.Timeout(connect=5.0, read=600.0, write=10.0, pool=5.0)
+        timeout = timeout or httpx.Timeout(
+            connect=5.0, read=600.0, write=10.0, pool=5.0
+        )
         return SLConfig(loc, token, timeout)
 
     @staticmethod
     def _build_path(datafile_id: str, endpoint: str) -> str:
         return f"datafiles/{datafile_id}/{endpoint}"
+
+    @staticmethod
+    def _build_request_body(
+        user_query: str, known_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        body = {"userQuery": user_query}
+        if known_data is not None:
+            body["knownData"] = known_data
+        return body
 
     @staticmethod
     def _parse_retrieve(resp):

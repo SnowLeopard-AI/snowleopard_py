@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from httpx import HTTPStatusError
 from snowleopard import __version__, SnowLeopardClient
-from snowleopard.models import RetrieveResponseError, ErrorSchemaData
+from snowleopard.models import RetrieveResponseError
 
 
 def _create_parser() -> argparse.ArgumentParser:

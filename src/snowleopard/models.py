@@ -116,11 +116,11 @@ _PARSE_OBJS = {
 RetrieveResponseObjects = RetrieveResponse | RetrieveResponseError
 
 ResponseDataObjects = (
-        ErrorSchemaData
-        | ResponseStart
-        | ResponseData
-        | EarlyTermination
-        | ResponseLLMResult
+    ErrorSchemaData
+    | ResponseStart
+    | ResponseData
+    | EarlyTermination
+    | ResponseLLMResult
 )
 
 
