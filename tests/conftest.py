@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Union
 from urllib.request import Request
 
 import pytest
@@ -57,7 +58,7 @@ def async_client(token, loc):
 
 
 @pytest.fixture(params=["client", "async_client"])
-def any_client(request) -> SnowLeopardClient | AsyncSnowLeopardClient:
+def any_client(request) -> Union[SnowLeopardClient, AsyncSnowLeopardClient]:
     return request.getfixturevalue(request.param)
 
 

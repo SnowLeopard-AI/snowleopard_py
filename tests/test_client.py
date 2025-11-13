@@ -1,6 +1,6 @@
 from inspect import isawaitable
 from pathlib import Path
-from typing import AsyncIterator, Awaitable, Iterator, TypeVar
+from typing import AsyncIterator, Awaitable, Iterator, TypeVar, Union
 
 import pytest
 from snowleopard.models import RetrieveResponseError, ResponseStatus
@@ -10,13 +10,13 @@ from .conftest import HOW_MANY_SUPERHEROES, CASSETTES_DIR, HOW_MANY_SUPERHEROES_
 T = TypeVar("T")
 
 
-async def maybe_await(obj: T | Awaitable[T]) -> T:
+async def maybe_await(obj: Union[T, Awaitable[T]]) -> T:
     if isawaitable(obj):
         obj = await obj
     return obj
 
 
-async def maybe_await_iter(obj: Iterator[T] | AsyncIterator[T]) -> AsyncIterator[T]:
+async def maybe_await_iter(obj: Union[Iterator[T], AsyncIterator[T]]) -> AsyncIterator[T]:
     if hasattr(obj, "__anext__"):
         async for item in obj:
             yield item
@@ -26,7 +26,7 @@ async def maybe_await_iter(obj: Iterator[T] | AsyncIterator[T]) -> AsyncIterator
 
 
 # explicitly set the default cassette loc since parameterized tests would create 2 recordings rather than 1
-def cassette(cassette_loc: str | Path):
+def cassette(cassette_loc: Union[str, Path]):
     return lambda fn: (
         pytest.mark.default_cassette(str(cassette_loc))(
             pytest.mark.vcr(pytest.mark.asyncio(fn))

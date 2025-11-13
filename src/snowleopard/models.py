@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, fields
 from enum import Enum
-from typing import Any, Union
+from typing import Any, Dict, List, Optional, Union
 
 
 class StrEnum(str, Enum):
@@ -19,7 +19,7 @@ class RetrieveResponse:
     objType = "retrieveResponse"
 
     callId: str
-    data: list[SchemaData | ErrorSchemaData]
+    data: List[Union[SchemaData, ErrorSchemaData]]
     responseStatus: ResponseStatus
 
 
@@ -39,8 +39,8 @@ class SchemaData:
     schemaId: str
     schemaType: str
     query: str
-    rows: list[dict[str, Any]]
-    querySummary: dict[str, Any]
+    rows: List[Dict[str, Any]]
+    querySummary: Dict[str, Any]
     rowMax: int
     isTrimmed: bool
     callId: str = None
@@ -54,8 +54,8 @@ class ErrorSchemaData:
     schemaId: str
     query: str
     error: str
-    querySummary: dict[str, Any]
-    datastoreExceptionInfo: str | None = None
+    querySummary: Dict[str, Any]
+    datastoreExceptionInfo: Optional[str] = None
     callId: str = None
 
 
@@ -72,7 +72,7 @@ class ResponseData:
     objType = "responseData"
 
     callId: str
-    data: list[Union[SchemaData, ErrorSchemaData]]
+    data: List[Union[SchemaData, ErrorSchemaData]]
 
 
 @dataclass
@@ -91,7 +91,7 @@ class ResponseLLMResult:
 
     callId: str
     responseStatus: ResponseStatus
-    llmResponse: dict[str, Any]
+    llmResponse: Dict[str, Any]
 
 
 class ResponseStatus(StrEnum):
@@ -118,15 +118,15 @@ _PARSE_OBJS = {
     )
 }
 
-RetrieveResponseObjects = RetrieveResponse | RetrieveResponseError
+RetrieveResponseObjects = Union[RetrieveResponse, RetrieveResponseError]
 
-ResponseDataObjects = (
-    ErrorSchemaData
-    | ResponseStart
-    | ResponseData
-    | EarlyTermination
-    | ResponseLLMResult
-)
+ResponseDataObjects = Union[
+    ErrorSchemaData,
+    ResponseStart,
+    ResponseData,
+    EarlyTermination,
+    ResponseLLMResult,
+]
 
 
 def parse(obj):
