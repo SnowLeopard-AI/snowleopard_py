@@ -34,6 +34,8 @@ class SnowLeopardClient(SLClientBase):
             url=self._build_path(datafile_id, "retrieve"),
             json=self._build_request_body(user_query, known_data),
         )
+        if resp.status_code not in (200, 409):
+            resp.raise_for_status()
         return self._parse_retrieve(resp)
 
     def response(
@@ -42,13 +44,14 @@ class SnowLeopardClient(SLClientBase):
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
     ) -> Generator[ResponseDataObjects, None, None]:
-        resp = self.client.post(
+        with self.client.stream(
+            "POST",
             url=self._build_path(datafile_id, "response"),
             json=self._build_request_body(user_query, known_data),
-        )
-        resp.raise_for_status()
-        for line in resp.iter_lines():
-            yield parse(json.loads(line))
+        ) as resp:
+            resp.raise_for_status()
+            for line in resp.iter_lines():
+                yield parse(json.loads(line))
 
     def __enter__(self):
         self.client.__enter__()
