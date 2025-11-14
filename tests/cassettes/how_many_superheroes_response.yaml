@@ -1,0 +1,70 @@
+interactions:
+- request:
+    body: '{"userQuery":"How many superheroes are there?"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '47'
+      content-type:
+      - application/json
+      host:
+      - dev.snowleopard.ai
+      user-agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.snowleopard.ai/datafiles/superheroes_dfid/response
+  response:
+    body:
+      string: '{"callId": "79395651-ef9e-4a82-9e9f-d94f2bd2356a", "userQuery": "How
+        many superheroes are there?", "__type__": "responseStart"}
+
+        {"callId": "79395651-ef9e-4a82-9e9f-d94f2bd2356a", "data": [{"schemaId": "ut3_db",
+        "schemaType": "SQLite", "query": "SELECT count(superheroes.id) AS total_superheroes
+        \nFROM superheroes", "rows": [{"total_superheroes": 6895}], "querySummary":
+        {"summary": "This query counts the total number of superheroes in the database.",
+        "technical_details": "The query uses the COUNT function on the ''id'' column
+        in the ''superheroes'' table to calculate the total number of superheroes.
+        The ''id'' column is unique for each superhero, ensuring an accurate count.",
+        "non_technical_explanation": "The query calculates how many superheroes are
+        in the database by counting their unique IDs.", "approach_explanation": {"logic":
+        "The logic is to count the unique IDs of superheroes, as each superhero has
+        a unique ID.", "reasoning": "The ''id'' column is unique for each superhero,
+        making it the best choice for counting the total number of superheroes.",
+        "attribution": ["CREATE TABLE superheroes", "id INTEGER /* Primary key, unique
+        identifier for each superhero. */"]}}, "rowMax": 100000, "isTrimmed": false,
+        "__type__": "schemaData"}], "__type__": "responseData"}
+
+        {"callId": "79395651-ef9e-4a82-9e9f-d94f2bd2356a", "responseStatus": "SUCCESS",
+        "llmResponse": {"status": "SUCCESS", "data": {"total_superheroes": 6895},
+        "complete_answer": "There are a total of 6,895 superheroes in the database.",
+        "analysis": {"total_count": 6895, "insight": "The database contains a significant
+        number of superheroes, indicating a comprehensive collection."}, "explanation":
+        {"howDataWasUsed": ["The provided data was used to directly extract the total
+        count of superheroes from the ''total_superheroes'' field in the retrieved
+        data.", "The query logic ensured an accurate count by using the unique ''id''
+        column for each superhero."]}, "comments": "The count of superheroes is based
+        on the unique IDs in the database, ensuring accuracy."}, "__type__": "responseResult"}
+
+        '
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Transfer-Encoding:
+      - chunked
+      content-type:
+      - application/json
+      date:
+      - Tue, 11 Nov 2025 22:15:45 GMT
+      server:
+      - Google Frontend
+      via:
+      - 1.1 google
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -11,7 +11,9 @@ authors = [
     { name = "Snowy", email = "hello@snowleopard.ai" }
 ]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "httpx>=0.28.1",
+]
 
 # list of classifier strings, defined here: https://pypi.org/classifiers/
 classifiers = [
@@ -21,7 +23,7 @@ classifiers = [
 ]
 
 [project.scripts]
-snowleopard = "snowleopard:main"
+snowy = "snowleopard.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -33,5 +35,8 @@ path = "src/snowleopard/__init__.py"
 [dependency-groups]
 dev = [
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.24.0",
+    "pytest-recording>=0.13.2",
+    "python-dotenv>=1.0.1",
     "ruff>=0.14.4",
 ]

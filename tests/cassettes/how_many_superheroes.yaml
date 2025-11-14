@@ -1,0 +1,57 @@
+interactions:
+  - request:
+      body: '{"userQuery":"How many superheroes are there?"}'
+      headers:
+        accept:
+          - '*/*'
+        accept-encoding:
+          - gzip, deflate
+        connection:
+          - keep-alive
+        content-length:
+          - '47'
+        content-type:
+          - application/json
+        host:
+          - dev.snowleopard.ai
+        user-agent:
+          - python-httpx/0.28.1
+      method: POST
+      uri: https://api.snowleopard.ai/datafiles/superheroes_dfid/retrieve
+    response:
+      body:
+        string: '{"callId": "e20187e2-5dc3-493f-867d-22b746040088", "data": [{"schemaId":
+        "ut3_db", "schemaType": "SQLite", "query": "SELECT count(superheroes.id) AS
+        total_superheroes \nFROM superheroes", "rows": [{"total_superheroes": 6895}],
+        "querySummary": {"summary": "The query counts the total number of superheroes
+        in the database.", "technical_details": "The query uses the COUNT function
+        on the ''id'' column in the ''superheroes'' table to calculate the total number
+        of superheroes. The ''id'' column is the primary key and uniquely identifies
+        each superhero.", "non_technical_explanation": "This query determines how
+        many superheroes are in the database by counting their unique IDs.", "approach_explanation":
+        {"logic": "The logic is to count the unique IDs in the ''superheroes'' table,
+        as each ID represents a unique superhero.", "reasoning": "The ''id'' column
+        is the primary key and uniquely identifies each superhero, making it suitable
+        for counting the total number of superheroes.", "attribution": ["CREATE TABLE
+        superheroes", "id INTEGER /* Primary key, unique identifier for each superhero.
+        */"]}}, "rowMax": 100000, "isTrimmed": false, "__type__": "schemaData"}],
+        "responseStatus": "SUCCESS", "__type__": "retrieveResponse"}'
+      headers:
+        Alt-Svc:
+          - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+        Transfer-Encoding:
+          - chunked
+        content-type:
+          - application/json
+        date:
+          - Tue, 11 Nov 2025 00:25:24 GMT
+        server:
+          - Google Frontend
+        via:
+          - 1.1 google
+        x-cloud-trace-context:
+          - 8886f367ddb5f3d9082541d468cb47e1;o=1
+      status:
+        code: 200
+        message: OK
+version: 1

@@ -1,0 +1,64 @@
+interactions:
+- request:
+    body: '{"userQuery":"What language is the most spoken amongst superheroes?"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '69'
+      content-type:
+      - application/json
+      host:
+      - dev.snowleopard.ai
+      user-agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.snowleopard.ai/datafiles/superheroes_dfid/retrieve
+  response:
+    body:
+      string: '{"callId": "19ce9aaa-7141-4ce8-9f66-ef64a5bd9bd5", "data": [{"schemaId":
+        "ut3_db", "schemaType": "SQLite", "query": "SELECT language, COUNT(language)
+        AS language_count FROM superheroes GROUP BY language ORDER BY language_count
+        DESC LIMIT 1", "error": "OperationalError: (sqlite3.OperationalError) no such
+        column: language\n[SQL: SELECT language, COUNT(language) AS language_count
+        FROM superheroes GROUP BY language ORDER BY language_count DESC LIMIT 1]\n(Background
+        on this error at: https://sqlalche.me/e/20/e3q8)", "querySummary": {"summary":
+        "This query identifies the most spoken language among superheroes by counting
+        the number of superheroes for each language and selecting the one with the
+        highest count.", "technical_details": "The query uses the COUNT function to
+        count the number of superheroes for each language, groups the results by language,
+        and orders them in descending order of count. The LIMIT clause ensures that
+        only the top result is returned.", "non_technical_explanation": "The query
+        finds the language spoken by the most superheroes by counting how many superheroes
+        speak each language and picking the one with the highest count.", "approach_explanation":
+        {"logic": "The logic is to group superheroes by their language, count the
+        number of superheroes in each group, and then sort the groups by count in
+        descending order to find the most spoken language.", "reasoning": "Grouping
+        by language and counting the superheroes in each group allows us to determine
+        the most spoken language. Sorting by count ensures that the language with
+        the highest count is at the top.", "attribution": ["superheroes.language"]}},
+        "datastoreExceptionInfo": null, "__type__": "errorSchemaData"}], "responseStatus":
+        "INTERNAL_SERVER_ERROR", "__type__": "retrieveResponse"}'
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Length:
+      - '1774'
+      content-type:
+      - application/json
+      date:
+      - Tue, 11 Nov 2025 19:22:19 GMT
+      server:
+      - Google Frontend
+      via:
+      - 1.1 google
+      x-cloud-trace-context:
+      - 87a79d7af4b1aacc360b505d0ad82895;o=1
+    status:
+      code: 409
+      message: Conflict
+version: 1

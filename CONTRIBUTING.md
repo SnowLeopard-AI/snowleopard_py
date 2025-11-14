@@ -38,3 +38,23 @@ To test against a specific Python version:
 ```bash
 uv run --python 3.10 pytest
 ```
+
+
+### Re-Recording Cassettes or Writing New Tests
+
+Tests use cassettes to be able to easily mock snowleopard network traffic. No configuration is needed when re-running 
+tests, but to re-record or author new tests a .env file is needed in tests.
+
+```bash
+touch tests/.env
+```
+
+```.dotenv
+#SNOWLEOPARD_LOC=
+#SUPERHEROES_DFID=
+#SNOWLEOPARD_API_KEY=
+SNOWLEOPARD_TEST_RECORD_MODE=once
+```
+See [pyvcr docs](https://vcrpy.readthedocs.io/en/latest/usage.html#record-modes) for more information on recording 
+modes. Once will re-record only if the file is missing, so to re-record you must delete it first.
+

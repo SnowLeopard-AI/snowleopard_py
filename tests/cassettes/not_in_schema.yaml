@@ -1,0 +1,45 @@
+interactions:
+- request:
+    body: '{"userQuery":"What language is the most spoken amongst superheroes?"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '69'
+      content-type:
+      - application/json
+      host:
+      - dev.snowleopard.ai
+      user-agent:
+      - python-httpx/0.28.1
+    method: POST
+    uri: https://api.snowleopard.ai/datafiles/superheroes_dfid/retrieve
+  response:
+    body:
+      string: '{"callId": "da8f886c-9a89-45cc-8c5a-cc4beda54357", "responseStatus":
+        "NOT_FOUND_IN_SCHEMA", "description": "The data doesn''t exist in the schema
+        to answer this question. Please review the schema and ask a different question.",
+        "__type__": "apiError"}'
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Length:
+      - '250'
+      content-type:
+      - application/json
+      date:
+      - Tue, 11 Nov 2025 20:24:35 GMT
+      server:
+      - Google Frontend
+      via:
+      - 1.1 google
+      x-cloud-trace-context:
+      - 53d844fd5fb98d5e91a73c4411f622e7;o=1
+    status:
+      code: 409
+      message: Conflict
+version: 1
