@@ -18,12 +18,11 @@ def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="snowy", description="SnowLeopard.ai client library CLI"
     )
+    parser.add_argument("--apikey", "-a", required=False, help="Snowleopard API key")
+    parser.add_argument("--loc", "-l", required=False, help="Snowleopard location")
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
-
-    parser.add_argument("--loc", "-l", required=False, help="Snowleopard location")
-    parser.add_argument("--token", "-t", required=False, help="Snowleopard token")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -63,7 +62,7 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
 
 def _get_client(parsed_args):
     try:
-        client = SnowLeopardClient(parsed_args.loc, parsed_args.token)
+        client = SnowLeopardClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
