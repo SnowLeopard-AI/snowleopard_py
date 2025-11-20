@@ -14,7 +14,7 @@ pip install snowleopard
 from snowleopard import SnowLeopardClient
 
 # Initialize the client (or AsyncSnowLeopardClient)
-client = SnowLeopardClient(token="your-api-key")
+client = SnowLeopardClient(api_key="your-api-key")
 
 # Query your data in natural language
 response = client.retrieve(
@@ -35,7 +35,7 @@ response = client.retrieve(
     Or pass it directly to the client:
     
     ```python
-    SnowLeopardClient(token="your-api-key")
+    SnowLeopardClient(api_key="your-api-key")
     ```
 
 ## Usage

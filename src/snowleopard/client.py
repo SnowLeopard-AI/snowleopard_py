@@ -15,11 +15,11 @@ class SnowLeopardClient(SLClientBase):
 
     def __init__(
         self,
-        loc: str = None,
-        token: Optional[str] = None,
+        api_key: Optional[str] = None,
         timeout: Optional[httpx.Timeout] = None,
+        loc: str = None,
     ):
-        config = self._config(loc, token, timeout)
+        config = self._config(api_key, timeout, loc)
         self.client = httpx.Client(
             base_url=config.loc, headers=config.headers(), timeout=config.timeout
         )

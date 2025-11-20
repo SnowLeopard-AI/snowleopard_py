@@ -19,8 +19,8 @@ def test_main_no_args(capsys):
 
 @pytest.mark.default_cassette(HOW_MANY_SUPERHEROES)
 @pytest.mark.vcr
-def test_retrieve_command(capsys, loc, superheroes, token, how_many_superheroes_q):
-    main(["-l", loc, "-t", "token", "retrieve", superheroes, how_many_superheroes_q])
+def test_retrieve_command(capsys, loc, superheroes, api_key, how_many_superheroes_q):
+    main(["-l", loc, "-a", api_key, "retrieve", superheroes, how_many_superheroes_q])
     stdout = capsys.readouterr().out
     assert "6895" in stdout
     assert "callId" in json.loads(stdout)
@@ -28,8 +28,8 @@ def test_retrieve_command(capsys, loc, superheroes, token, how_many_superheroes_
 
 @pytest.mark.default_cassette(HOW_MANY_SUPERHEROES_RESPONSE)
 @pytest.mark.vcr
-def test_response_command(capsys, loc, superheroes, token, how_many_superheroes_q):
-    main(["-l", loc, "-t", "token", "response", superheroes, how_many_superheroes_q])
+def test_response_command(capsys, loc, superheroes, api_key, how_many_superheroes_q):
+    main(["-l", loc, "-a", api_key, "response", superheroes, how_many_superheroes_q])
     stdout = capsys.readouterr().out
     assert "6895" in stdout
     for line in stdout.splitlines():

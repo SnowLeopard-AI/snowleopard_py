@@ -38,8 +38,8 @@ def superheroes():
 
 
 @pytest.fixture
-def token():
-    return os.environ.get("SNOWLEOPARD_API_KEY", "test_token")
+def api_key():
+    return os.environ.get("SNOWLEOPARD_API_KEY", "test_api_key")
 
 
 @pytest.fixture(scope="module")
@@ -48,13 +48,13 @@ def loc():
 
 
 @pytest.fixture
-def client(token, loc):
-    return SnowLeopardClient(loc=loc, token=token)
+def client(api_key, loc):
+    return SnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture
-def async_client(token, loc):
-    return AsyncSnowLeopardClient(loc=loc, token=token)
+def async_client(api_key, loc):
+    return AsyncSnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture(params=["client", "async_client"])

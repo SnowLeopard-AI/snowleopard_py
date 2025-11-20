@@ -13,37 +13,36 @@ from snowleopard.models import parse
 
 @dataclass
 class SLConfig:
-    loc: str
-    token: str
+    api_key: str
     timeout: httpx.Timeout
+    loc: str
 
     def headers(self):
         headers = {}
-        if self.token:
-            headers["Authorization"] = f"Bearer {self.token}"
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
         return headers
 
 
 class SLClientBase:
     @staticmethod
     def _config(
-        loc: Optional[str], token: Optional[str], timeout: Optional[httpx.Timeout]
+        api_key: Optional[str], timeout: Optional[httpx.Timeout], loc: Optional[str]
     ) -> SLConfig:
-        loc = loc or os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai")
-        if not loc:
+        api_key = api_key or os.environ.get("SNOWLEOPARD_API_KEY")
+        if api_key is None:
             raise ValueError(
-                'Missing required argument "loc" and envar "SNOWLEOPARD_LOC" not set'
+                'Missing required argument "api_key" and environment variable "SNOWLEOPARD_API_KEY" not set'
             )
-        token = token or os.environ.get("SNOWLEOPARD_API_KEY")
-        if token is None:
-            raise ValueError(
-                'Missing required argument "token" and envar "SNOWLEOPARD_API_KEY" not set'
-            )
-
         timeout = timeout or httpx.Timeout(
             connect=5.0, read=600.0, write=10.0, pool=5.0
         )
-        return SLConfig(loc, token, timeout)
+        loc = loc or os.environ.get("SNOWLEOPARD_LOC", "https://api.snowleopard.ai")
+        if not loc:
+            raise ValueError(
+                'Missing required argument "loc" and environment variable "SNOWLEOPARD_LOC" not set'
+            )
+        return SLConfig(api_key, timeout, loc)
 
     @staticmethod
     def _build_path(datafile_id: str, endpoint: str) -> str:
