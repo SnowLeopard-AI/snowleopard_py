@@ -9,7 +9,7 @@ import argparse
 from typing import List, Optional, Dict, Any
 
 from httpx import HTTPStatusError
-from snowleopard import __version__, SnowLeopardClient
+from snowleopard import __version__, SnowLeopardPlaygroundClient
 from snowleopard.models import RetrieveResponseError
 
 
@@ -18,30 +18,37 @@ def _create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="snowy", description="SnowLeopard.ai client library CLI"
     )
-    parser.add_argument("--apikey", "-a", required=False, help="Snowleopard API key")
-    parser.add_argument("--loc", "-l", required=False, help="Snowleopard location")
+    parser.add_argument("--apikey", "-a", required=False, help="SnowLeopard API key")
+    parser.add_argument("--loc", "-l", required=False, help="SnowLeopard location")
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
 
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    parser.set_defaults(command_func=None)
+    subparsers = parser.add_subparsers(
+        dest="command",
+        metavar="command",
+        help="run with <command name> --help for more info",
+    )
 
     retrieve = subparsers.add_parser(
-        "retrieve", help="Retrieve data from natural language"
+        "retrievepg", help="Retrieve data from natural language query using playground"
     )
+    retrieve.set_defaults(command_func=_retrievepg)
     response = subparsers.add_parser(
-        "response", help="Get streaming response from natural language query"
+        "responsepg", help="Get streaming response from natural language query using playground"
     )
+    response.set_defaults(command_func=_responsepg)
 
     for subparser in (retrieve, response):
-        subparser.add_argument("datafile", type=str, help="Datafile to query")
-        subparser.add_argument("question", type=str, help="Natural language query")
         subparser.add_argument(
             "--knownData",
             "-d",
             action="append",
             help="Known data in key=value format (can be specified multiple times)",
         )
+        subparser.add_argument("datafile", type=str, help="Datafile to query")
+        subparser.add_argument("question", type=str, help="Natural language query")
 
     return parser
 
@@ -62,14 +69,14 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
 
 def _get_client(parsed_args):
     try:
-        client = SnowLeopardClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
+        client = SnowLeopardPlaygroundClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
     return client
 
 
-def _retrieve(parsed_args):
+def _retrievepg(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
@@ -82,7 +89,7 @@ def _retrieve(parsed_args):
         sys.exit(1)
 
 
-def _response(parsed_args):
+def _responsepg(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
@@ -98,10 +105,8 @@ def main(args: Optional[List[str]] = None) -> None:
     parser = _create_parser()
     parsed_args = parser.parse_args(args=args)
 
-    if parsed_args.command == "retrieve":
-        _retrieve(parsed_args)
-    elif parsed_args.command == "response":
-        _response(parsed_args)
-    elif parsed_args.command is None:
+    if parsed_args.command_func is not None:
+        parsed_args.command_func(parsed_args)
+    else:
         parser.print_help(file=sys.stderr)
         sys.exit(1)

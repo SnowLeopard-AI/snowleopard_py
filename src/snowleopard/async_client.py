@@ -10,7 +10,7 @@ from snowleopard.client_base import SLClientBase
 from snowleopard.models import ResponseDataObjects, RetrieveResponseObjects, parse
 
 
-class AsyncSnowLeopardClient(SLClientBase):
+class AsyncSnowLeopardPlaygroundClient(SLClientBase):
     client: httpx.AsyncClient
 
     def __init__(

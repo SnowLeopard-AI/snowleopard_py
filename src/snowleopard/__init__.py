@@ -2,12 +2,12 @@
 # copyright 2025 Snow Leopard, Inc
 # released under the MIT license - see LICENSE file
 
-from snowleopard.async_client import AsyncSnowLeopardClient
-from snowleopard.client import SnowLeopardClient
+from snowleopard.async_client import AsyncSnowLeopardPlaygroundClient
+from snowleopard.client import SnowLeopardPlaygroundClient
 
 __version__ = "0.1.0"
 
 __all__ = [
-    "SnowLeopardClient",
-    "AsyncSnowLeopardClient",
+    "SnowLeopardPlaygroundClient",
+    "AsyncSnowLeopardPlaygroundClient",
 ]
