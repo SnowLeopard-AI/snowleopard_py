@@ -16,10 +16,10 @@ from snowleopard.models import RetrieveResponseError
 def _create_parser() -> argparse.ArgumentParser:
     """Create and return the argument parser."""
     parser = argparse.ArgumentParser(
-        prog="snowy", description="SnowLeopard.ai client library CLI"
+        prog="snowy", description="Snow Leopard client library CLI"
     )
-    parser.add_argument("--apikey", "-a", required=False, help="SnowLeopard API key")
-    parser.add_argument("--loc", "-l", required=False, help="SnowLeopard location")
+    parser.add_argument("--apikey", "-a", required=False, help="Snow Leopard API key")
+    parser.add_argument("--loc", "-l", required=False, help="Snow Leopard location")
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
     )
@@ -32,13 +32,13 @@ def _create_parser() -> argparse.ArgumentParser:
     )
 
     retrieve = subparsers.add_parser(
-        "retrievepg", help="Retrieve data from natural language query using playground"
+        "retrieve", help="Retrieve data for natural language query"
     )
-    retrieve.set_defaults(command_func=_retrievepg)
+    retrieve.set_defaults(command_func=_retrieve)
     response = subparsers.add_parser(
-        "responsepg", help="Get streaming response from natural language query using playground"
+        "response", help="Get streaming response for natural language query"
     )
-    response.set_defaults(command_func=_responsepg)
+    response.set_defaults(command_func=_response)
 
     for subparser in (retrieve, response):
         subparser.add_argument(
@@ -47,7 +47,7 @@ def _create_parser() -> argparse.ArgumentParser:
             action="append",
             help="Known data in key=value format (can be specified multiple times)",
         )
-        subparser.add_argument("datafile", type=str, help="Datafile to query")
+        subparser.add_argument("datafile", type=str, help="ID for Datafile to query")
         subparser.add_argument("question", type=str, help="Natural language query")
 
     return parser
@@ -76,7 +76,7 @@ def _get_client(parsed_args):
     return client
 
 
-def _retrievepg(parsed_args):
+def _retrieve(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
@@ -89,7 +89,7 @@ def _retrievepg(parsed_args):
         sys.exit(1)
 
 
-def _responsepg(parsed_args):
+def _response(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:

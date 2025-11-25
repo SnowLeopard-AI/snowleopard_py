@@ -1,6 +1,6 @@
-# SnowLeopard SDK for Python
+# Snow Leopard SDK for Python
 
-Python client library for [Snow Leopard Playground](https://try.snowleopard.ai)
+Python client library for [Snow Leopard Playground](https://try.snowleopard.ai) APIs.
 
 ## Installation
 
