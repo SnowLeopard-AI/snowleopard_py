@@ -10,7 +10,7 @@ from snowleopard.client_base import SLClientBase
 from snowleopard.models import parse, RetrieveResponseObjects, ResponseDataObjects
 
 
-class SnowLeopardClient(SLClientBase):
+class SnowLeopardPlaygroundClient(SLClientBase):
     client: httpx.Client
 
     def __init__(

@@ -1,6 +1,6 @@
-# SnowLeopard SDK for Python
+# Snow Leopard SDK for Python
 
-Python client library for [Snow Leopard Playground](https://try.snowleopard.ai)
+Python client library for [Snow Leopard Playground](https://try.snowleopard.ai) APIs.
 
 ## Installation
 
@@ -11,10 +11,10 @@ pip install snowleopard
 ## Quick Start
 
 ```python
-from snowleopard import SnowLeopardClient
+from snowleopard import SnowLeopardPlaygroundClient
 
-# Initialize the client (or AsyncSnowLeopardClient)
-client = SnowLeopardClient(api_key="your-api-key")
+# Initialize the client (or AsyncSnowLeopardPlaygroundClient)
+client = SnowLeopardPlaygroundClient(api_key="your-api-key")
 
 # Query your data in natural language
 response = client.retrieve(
@@ -35,7 +35,7 @@ response = client.retrieve(
     Or pass it directly to the client:
     
     ```python
-    SnowLeopardClient(api_key="your-api-key")
+    SnowLeopardPlaygroundClient(api_key="your-api-key")
     ```
 
 ## Usage
@@ -43,9 +43,9 @@ response = client.retrieve(
 ### Synchronous Client
 
 ```python
-from snowleopard import SnowLeopardClient
+from snowleopard import SnowLeopardPlaygroundClient
 
-with SnowLeopardClient() as client:
+with SnowLeopardPlaygroundClient() as client:
     # Get data directly from a natural language query
     response = client.retrieve("datafile-id", "What's the total revenue?")
     print(response.data)
@@ -58,9 +58,9 @@ with SnowLeopardClient() as client:
 ### Async Client
 
 ```python
-from snowleopard import AsyncSnowLeopardClient
+from snowleopard import AsyncSnowLeopardPlaygroundClient
 
-async with AsyncSnowLeopardClient() as client:
+async with AsyncSnowLeopardPlaygroundClient() as client:
     # Get complete results
     response = await client.retrieve("datafile-id", "What's the total revenue?")
     print(response.data)
