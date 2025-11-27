@@ -10,7 +10,16 @@ license = {file = "LICENSE"}
 authors = [
     { name = "Snowy", email = "hello@snowleopard.ai" }
 ]
+
+# list of classifier strings, defined here: https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+]
+
 requires-python = ">=3.8"
+
 dependencies = [
     "httpx>=0.28.1",
 ]
@@ -22,13 +31,6 @@ dev = [
     "pytest-recording>=0.13.2",
     "python-dotenv>=1.0.1",
     "ruff>=0.14.4",
-]
-
-# list of classifier strings, defined here: https://pypi.org/classifiers/
-classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
 ]
 
 [project.scripts]
