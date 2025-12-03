@@ -1,6 +1,8 @@
 # Snow Leopard SDK for Python
 
-Python client library for [Snow Leopard Playground](https://try.snowleopard.ai) APIs.
+This repo contains the Python client library for [Snow Leopard Playground](https://try.snowleopard.ai) APIs. 
+
+See our [API documentation](https://docs.snowleopard.ai/#api-documentation) for more details.
 
 ## Installation
 
