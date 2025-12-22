@@ -42,10 +42,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
     for subparser in (retrieve, response):
         subparser.add_argument(
-            "--datafile",
-            "-df",
-            type=str,
-            help="ID for Datafile to query"
+            "--datafile", "-df", type=str, help="ID for Datafile to query"
         )
         subparser.add_argument(
             "--knownData",
@@ -65,7 +62,10 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
     result = {}
     for item in known_data_list:
         if "=" not in item:
-            print(f"Error: Invalid knownData format '{item}'. Expected key=value", file=sys.stderr)
+            print(
+                f"Error: Invalid knownData format '{item}'. Expected key=value",
+                file=sys.stderr,
+            )
             sys.exit(1)
         key, value = item.split("=", 1)
         result[key] = value
@@ -74,7 +74,9 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
 
 def _get_client(parsed_args):
     try:
-        client = SnowLeopardPlaygroundClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
+        client = SnowLeopardPlaygroundClient(
+            api_key=parsed_args.apikey, loc=parsed_args.loc
+        )
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
@@ -88,7 +90,7 @@ def _retrieve(parsed_args):
             resp = client.retrieve(
                 datafile_id=parsed_args.datafile,
                 user_query=parsed_args.question,
-                known_data=known_data
+                known_data=known_data,
             )
             print(json.dumps(dataclasses.asdict(resp)))
             if isinstance(resp, RetrieveResponseError):
@@ -103,9 +105,9 @@ def _response(parsed_args):
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
             for chunk in client.response(
-                    datafile_id=parsed_args.datafile,
-                    user_query=parsed_args.question,
-                    known_data=known_data
+                datafile_id=parsed_args.datafile,
+                user_query=parsed_args.question,
+                known_data=known_data,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))
     except HTTPStatusError as e:

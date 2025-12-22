@@ -59,7 +59,9 @@ def async_client(api_key, loc):
 
 
 @pytest.fixture(params=["client", "async_client"])
-def any_client(request) -> Union[SnowLeopardPlaygroundClient, AsyncSnowLeopardPlaygroundClient]:
+def any_client(
+    request,
+) -> Union[SnowLeopardPlaygroundClient, AsyncSnowLeopardPlaygroundClient]:
     return request.getfixturevalue(request.param)
 
 
