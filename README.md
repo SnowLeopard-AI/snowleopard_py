@@ -78,9 +78,21 @@ The SDK includes a command-line interface:
 
 ```bash
 pip install snowleopard
-snowy retrieve <datafile-id> "How many records are there?"
-snowy response <datafile-id> "Summarize the data"
+snowy retrieve --datafile <datafile-id> "How many records are there?"
+snowy response --datafile <datafile-id> "Summarize the data"
 ```
+
+### On Premise Customers
+
+For our customers who have a separate deployment per dataset, you should declare <url> explicitly when creating a 
+client and omit <datafile id> when querying.
+
+Example:
+```python
+client = SnowLeopardPlaygroundClient(url="https://your-vpc", api_key="your-api-key")
+response = client.retrieve(user_query="How many users signed up last month?")
+```
+
 
 ## Contributing
 
