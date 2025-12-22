@@ -42,12 +42,17 @@ def _create_parser() -> argparse.ArgumentParser:
 
     for subparser in (retrieve, response):
         subparser.add_argument(
+            "--datafile",
+            "-df",
+            type=str,
+            help="ID for Datafile to query"
+        )
+        subparser.add_argument(
             "--knownData",
             "-d",
             action="append",
             help="Known data in key=value format (can be specified multiple times)",
         )
-        subparser.add_argument("datafile", type=str, help="ID for Datafile to query")
         subparser.add_argument("question", type=str, help="Natural language query")
 
     return parser
@@ -80,7 +85,11 @@ def _retrieve(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
-            resp = client.retrieve(parsed_args.datafile, parsed_args.question, known_data)
+            resp = client.retrieve(
+                datafile_id=parsed_args.datafile,
+                user_query=parsed_args.question,
+                known_data=known_data
+            )
             print(json.dumps(dataclasses.asdict(resp)))
             if isinstance(resp, RetrieveResponseError):
                 sys.exit(1)
@@ -93,7 +102,11 @@ def _response(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
-            for chunk in client.response(parsed_args.datafile, parsed_args.question, known_data):
+            for chunk in client.response(
+                    datafile_id=parsed_args.datafile,
+                    user_query=parsed_args.question,
+                    known_data=known_data
+            ):
                 print(json.dumps(dataclasses.asdict(chunk)))
     except HTTPStatusError as e:
         print(str(e), file=sys.stderr)

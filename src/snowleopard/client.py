@@ -26,7 +26,8 @@ class SnowLeopardPlaygroundClient(SLClientBase):
 
     def retrieve(
         self,
-        datafile_id: str,
+        *,
+        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
     ) -> RetrieveResponseObjects:
@@ -40,7 +41,8 @@ class SnowLeopardPlaygroundClient(SLClientBase):
 
     def response(
         self,
-        datafile_id: str,
+        *,
+        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
     ) -> Generator[ResponseDataObjects, None, None]:

@@ -26,7 +26,8 @@ class AsyncSnowLeopardPlaygroundClient(SLClientBase):
 
     async def retrieve(
         self,
-        datafile_id: str,
+        *,
+        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
     ) -> RetrieveResponseObjects:
@@ -38,7 +39,8 @@ class AsyncSnowLeopardPlaygroundClient(SLClientBase):
 
     async def response(
         self,
-        datafile_id: str,
+        *,
+        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
     ) -> AsyncGenerator[ResponseDataObjects, None]:
