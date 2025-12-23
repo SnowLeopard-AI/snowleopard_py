@@ -30,9 +30,9 @@ class SLClientBase:
     def retrieve(
         self,
         *,
-        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        datafile_id: Optional[str] = None,
     ):
         """
         The primary for developers building AI agents that needs to retrieve data from a database directly.
@@ -50,9 +50,9 @@ class SLClientBase:
     def response(
         self,
         *,
-        datafile_id: Optional[str] = None,
-        user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        user_query: str,
+        datafile_id: Optional[str] = None,
     ):
         """
         Takes a natural language question (usually from the user or the agent) and returns the data required to answer

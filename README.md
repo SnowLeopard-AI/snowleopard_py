@@ -13,16 +13,13 @@ pip install snowleopard
 ## Quick Start
 
 ```python
-from snowleopard import SnowLeopardPlaygroundClient
+from snowleopard import SnowLeopardClient
 
-# Initialize the client (or AsyncSnowLeopardPlaygroundClient)
-client = SnowLeopardPlaygroundClient(api_key="your-api-key")
+# Initialize the client (or AsyncSnowLeopardClient)
+client = SnowLeopardClient(api_key="your-api-key")
 
 # Query your data in natural language
-response = client.retrieve(
-    datafile_id="your-datafile-id",
-    user_query="How many users signed up last month?"
-)
+response = client.retrieve(user_query="How many users signed up last month?", datafile_id="your-datafile-id")
 ```
 
 ## Getting Started
@@ -37,7 +34,7 @@ response = client.retrieve(
     Or pass it directly to the client:
     
     ```python
-    SnowLeopardPlaygroundClient(api_key="your-api-key")
+    SnowLeopardClient(api_key="your-api-key")
     ```
 
 ## Usage
@@ -45,31 +42,31 @@ response = client.retrieve(
 ### Synchronous Client
 
 ```python
-from snowleopard import SnowLeopardPlaygroundClient
+from snowleopard import SnowLeopardClient
 
-with SnowLeopardPlaygroundClient() as client:
-    # Get data directly from a natural language query
-    response = client.retrieve("datafile-id", "What's the total revenue?")
-    print(response.data)
-    
-    # Stream natural language summary of live data
-    for chunk in client.response("datafile-id", "Show me top 10 customers"):
-        print(chunk)
+with SnowLeopardClient() as client:
+   # Get data directly from a natural language query
+   response = client.retrieve(user_query=)
+   print(response.data)
+
+   # Stream natural language summary of live data
+   for chunk in client.response(user_query=):
+      print(chunk)
 ```
 
 ### Async Client
 
 ```python
-from snowleopard import AsyncSnowLeopardPlaygroundClient
+from snowleopard import AsyncSnowLeopardClient
 
-async with AsyncSnowLeopardPlaygroundClient() as client:
-    # Get complete results
-    response = await client.retrieve("datafile-id", "What's the total revenue?")
-    print(response.data)
+async with AsyncSnowLeopardClient() as client:
+   # Get complete results
+   response = await client.retrieve(user_query=)
+   print(response.data)
 
-    # Get streaming results
-    async for chunk in client.response("datafile-id", "Show me top 10 customers"):
-        print(chunk)
+   # Get streaming results
+   async for chunk in client.response(user_query=):
+      print(chunk)
 ```
 
 ### CLI
@@ -89,7 +86,7 @@ client and omit <datafile id> when querying.
 
 Example:
 ```python
-client = SnowLeopardPlaygroundClient(url="https://your-vpc", api_key="your-api-key")
+client = SnowLeopardClient(url="https://your-vpc", api_key="your-api-key")
 response = client.retrieve(user_query="How many users signed up last month?")
 ```
 

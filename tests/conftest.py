@@ -5,8 +5,8 @@ from urllib.request import Request
 
 import pytest
 from dotenv import load_dotenv
-from snowleopard.async_client import AsyncSnowLeopardPlaygroundClient
-from snowleopard.client import SnowLeopardPlaygroundClient
+from snowleopard.async_client import AsyncSnowLeopardClient
+from snowleopard.client import SnowLeopardClient
 
 load_dotenv()
 
@@ -50,18 +50,18 @@ def loc():
 
 @pytest.fixture
 def client(api_key, loc):
-    return SnowLeopardPlaygroundClient(api_key=api_key, loc=loc)
+    return SnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture
 def async_client(api_key, loc):
-    return AsyncSnowLeopardPlaygroundClient(api_key=api_key, loc=loc)
+    return AsyncSnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture(params=["client", "async_client"])
 def any_client(
     request,
-) -> Union[SnowLeopardPlaygroundClient, AsyncSnowLeopardPlaygroundClient]:
+) -> Union[SnowLeopardClient, AsyncSnowLeopardClient]:
     return request.getfixturevalue(request.param)
 
 

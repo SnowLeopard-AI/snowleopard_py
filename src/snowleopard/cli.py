@@ -9,7 +9,7 @@ import argparse
 from typing import List, Optional, Dict, Any
 
 from httpx import HTTPStatusError
-from snowleopard import __version__, SnowLeopardPlaygroundClient
+from snowleopard import __version__, SnowLeopardClient
 from snowleopard.models import RetrieveResponseError
 
 
@@ -42,7 +42,7 @@ def _create_parser() -> argparse.ArgumentParser:
 
     for subparser in (retrieve, response):
         subparser.add_argument(
-            "--datafile", "-df", type=str, help="ID for Datafile to query"
+            "--datafile", "-df", type=str, help="ID for playground datafile to query"
         )
         subparser.add_argument(
             "--knownData",
@@ -74,9 +74,7 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
 
 def _get_client(parsed_args):
     try:
-        client = SnowLeopardPlaygroundClient(
-            api_key=parsed_args.apikey, loc=parsed_args.loc
-        )
+        client = SnowLeopardClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
@@ -88,9 +86,9 @@ def _retrieve(parsed_args):
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
             resp = client.retrieve(
-                datafile_id=parsed_args.datafile,
                 user_query=parsed_args.question,
                 known_data=known_data,
+                datafile_id=parsed_args.datafile,
             )
             print(json.dumps(dataclasses.asdict(resp)))
             if isinstance(resp, RetrieveResponseError):
@@ -105,9 +103,9 @@ def _response(parsed_args):
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
             for chunk in client.response(
-                datafile_id=parsed_args.datafile,
-                user_query=parsed_args.question,
                 known_data=known_data,
+                user_query=parsed_args.question,
+                datafile_id=parsed_args.datafile,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))
     except HTTPStatusError as e:

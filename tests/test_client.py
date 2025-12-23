@@ -44,7 +44,7 @@ def cassette(cassette_loc: Union[str, Path]):
 @cassette(HOW_MANY_SUPERHEROES)
 async def test_retrieve_with_success(any_client, superheroes, how_many_superheroes_q):
     resp = await maybe_await(
-        any_client.retrieve(datafile_id=superheroes, user_query=how_many_superheroes_q)
+        any_client.retrieve(user_query=how_many_superheroes_q, datafile_id=superheroes)
     )
     assert "6895" in str(resp.data[0].rows)
 
@@ -60,8 +60,8 @@ async def test_retrieve_with_success_no_dfid(any_client, how_many_superheroes_q)
 async def test_retrieve_not_in_schema(any_client, superheroes):
     resp = await maybe_await(
         any_client.retrieve(
-            datafile_id=superheroes,
             user_query="What language is the most spoken amongst superheroes?",
+            datafile_id=superheroes,
         )
     )
     assert isinstance(resp, RetrieveResponseError)
@@ -76,8 +76,8 @@ async def test_retrieve_not_in_schema(any_client, superheroes):
 async def test_retrieve_with_bad_query(any_client, superheroes):
     resp = await maybe_await(
         any_client.retrieve(
-            datafile_id=superheroes,
             user_query="What language is the most spoken amongst superheroes?",
+            datafile_id=superheroes,
         )
     )
     # currently api is not returning this as error kind, which is definitely confusing
@@ -91,7 +91,7 @@ async def test_response_with_success(any_client, superheroes, how_many_superhero
         o
         async for o in maybe_await_iter(
             any_client.response(
-                datafile_id=superheroes, user_query=how_many_superheroes_q
+                user_query=how_many_superheroes_q, datafile_id=superheroes
             )
         )
     ]

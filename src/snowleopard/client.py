@@ -10,7 +10,7 @@ from snowleopard.client_base import SLClientBase
 from snowleopard.models import parse, RetrieveResponseObjects, ResponseDataObjects
 
 
-class SnowLeopardPlaygroundClient(SLClientBase):
+class SnowLeopardClient(SLClientBase):
     client: httpx.Client
 
     def __init__(
@@ -27,9 +27,9 @@ class SnowLeopardPlaygroundClient(SLClientBase):
     def retrieve(
         self,
         *,
-        datafile_id: Optional[str] = None,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        datafile_id: Optional[str] = None,
     ) -> RetrieveResponseObjects:
         resp = self.client.post(
             url=self._build_path(datafile_id, "retrieve"),
@@ -42,9 +42,9 @@ class SnowLeopardPlaygroundClient(SLClientBase):
     def response(
         self,
         *,
-        datafile_id: Optional[str] = None,
-        user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        user_query: str,
+        datafile_id: Optional[str] = None,
     ) -> Generator[ResponseDataObjects, None, None]:
         with self.client.stream(
             "POST",
