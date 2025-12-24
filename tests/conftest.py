@@ -5,13 +5,14 @@ from urllib.request import Request
 
 import pytest
 from dotenv import load_dotenv
-from snowleopard.async_client import AsyncSnowLeopardPlaygroundClient
-from snowleopard.client import SnowLeopardPlaygroundClient
+from snowleopard.async_client import AsyncSnowLeopardClient
+from snowleopard.client import SnowLeopardClient
 
 load_dotenv()
 
 CASSETTES_DIR = Path(__file__).parent / "cassettes"
 HOW_MANY_SUPERHEROES = str(CASSETTES_DIR / "how_many_superheroes.yaml")
+HOW_MANY_SUPERHEROES_NO_DFID = str(CASSETTES_DIR / "how_many_superheroes_no_dfid.yaml")
 HOW_MANY_SUPERHEROES_RESPONSE = str(
     CASSETTES_DIR / "how_many_superheroes_response.yaml"
 )
@@ -49,16 +50,18 @@ def loc():
 
 @pytest.fixture
 def client(api_key, loc):
-    return SnowLeopardPlaygroundClient(api_key=api_key, loc=loc)
+    return SnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture
 def async_client(api_key, loc):
-    return AsyncSnowLeopardPlaygroundClient(api_key=api_key, loc=loc)
+    return AsyncSnowLeopardClient(api_key=api_key, loc=loc)
 
 
 @pytest.fixture(params=["client", "async_client"])
-def any_client(request) -> Union[SnowLeopardPlaygroundClient, AsyncSnowLeopardPlaygroundClient]:
+def any_client(
+    request,
+) -> Union[SnowLeopardClient, AsyncSnowLeopardClient]:
     return request.getfixturevalue(request.param)
 
 

@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 
 class StrEnum(str, Enum):
     """String enum compatible with Python 3.8"""
+
     pass
 
 

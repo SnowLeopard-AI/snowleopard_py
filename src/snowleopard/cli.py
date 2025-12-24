@@ -9,7 +9,7 @@ import argparse
 from typing import List, Optional, Dict, Any
 
 from httpx import HTTPStatusError
-from snowleopard import __version__, SnowLeopardPlaygroundClient
+from snowleopard import __version__, SnowLeopardClient
 from snowleopard.models import RetrieveResponseError
 
 
@@ -42,12 +42,14 @@ def _create_parser() -> argparse.ArgumentParser:
 
     for subparser in (retrieve, response):
         subparser.add_argument(
+            "--datafile", "-df", type=str, help="ID for playground datafile to query"
+        )
+        subparser.add_argument(
             "--knownData",
             "-d",
             action="append",
             help="Known data in key=value format (can be specified multiple times)",
         )
-        subparser.add_argument("datafile", type=str, help="ID for Datafile to query")
         subparser.add_argument("question", type=str, help="Natural language query")
 
     return parser
@@ -60,7 +62,10 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
     result = {}
     for item in known_data_list:
         if "=" not in item:
-            print(f"Error: Invalid knownData format '{item}'. Expected key=value", file=sys.stderr)
+            print(
+                f"Error: Invalid knownData format '{item}'. Expected key=value",
+                file=sys.stderr,
+            )
             sys.exit(1)
         key, value = item.split("=", 1)
         result[key] = value
@@ -69,7 +74,7 @@ def _parse_known_data(known_data_list: Optional[List[str]]) -> Optional[Dict[str
 
 def _get_client(parsed_args):
     try:
-        client = SnowLeopardPlaygroundClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
+        client = SnowLeopardClient(api_key=parsed_args.apikey, loc=parsed_args.loc)
     except Exception as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
@@ -80,7 +85,11 @@ def _retrieve(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
-            resp = client.retrieve(parsed_args.datafile, parsed_args.question, known_data)
+            resp = client.retrieve(
+                user_query=parsed_args.question,
+                known_data=known_data,
+                datafile_id=parsed_args.datafile,
+            )
             print(json.dumps(dataclasses.asdict(resp)))
             if isinstance(resp, RetrieveResponseError):
                 sys.exit(1)
@@ -93,7 +102,11 @@ def _response(parsed_args):
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
-            for chunk in client.response(parsed_args.datafile, parsed_args.question, known_data):
+            for chunk in client.response(
+                known_data=known_data,
+                user_query=parsed_args.question,
+                datafile_id=parsed_args.datafile,
+            ):
                 print(json.dumps(dataclasses.asdict(chunk)))
     except HTTPStatusError as e:
         print(str(e), file=sys.stderr)
