@@ -46,11 +46,11 @@ from snowleopard import SnowLeopardClient
 
 with SnowLeopardClient() as client:
    # Get data directly from a natural language query
-   response = client.retrieve(user_query=)
+   response = client.retrieve(user_query="How many superheroes are there?")
    print(response.data)
 
    # Stream natural language summary of live data
-   for chunk in client.response(user_query=):
+   for chunk in client.response(user_query="How many superheroes are there?"):
       print(chunk)
 ```
 
@@ -61,11 +61,11 @@ from snowleopard import AsyncSnowLeopardClient
 
 async with AsyncSnowLeopardClient() as client:
    # Get complete results
-   response = await client.retrieve(user_query=)
+   response = await client.retrieve(user_query="How many superheroes are there?")
    print(response.data)
 
    # Get streaming results
-   async for chunk in client.response(user_query=):
+   async for chunk in client.response(user_query="How many superheroes are there?"):
       print(chunk)
 ```
 
@@ -86,7 +86,7 @@ client and omit <datafile id> when querying.
 
 Example:
 ```python
-client = SnowLeopardClient(url="https://your-vpc", api_key="your-api-key")
+client = SnowLeopardClient(url="https://{your-vm-ip}:{port}", api_key="your-api-key")
 response = client.retrieve(user_query="How many users signed up last month?")
 ```
 
