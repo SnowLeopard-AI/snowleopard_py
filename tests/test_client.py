@@ -96,7 +96,7 @@ _empty_query_cases = (
 @pytest.mark.asyncio
 async def test_retrieve_with_empty_query(any_client, user_query):
     with pytest.raises(APIBadRequest) as excinfo:
-        resp = await maybe_await(any_client.retrieve(user_query=user_query))
+        await maybe_await(any_client.retrieve(user_query=user_query))
     assert excinfo.type is APIBadRequest
 
 
@@ -104,7 +104,7 @@ async def test_retrieve_with_empty_query(any_client, user_query):
 @pytest.mark.asyncio
 async def test_response_with_empty_query(any_client, user_query):
     with pytest.raises(APIBadRequest) as excinfo:
-        resp = [o async for o in maybe_await_iter(any_client.response(user_query=user_query))]
+        [o async for o in maybe_await_iter(any_client.response(user_query=user_query))]
     assert excinfo.type is APIBadRequest
 
 
