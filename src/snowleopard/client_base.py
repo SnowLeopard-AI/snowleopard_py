@@ -9,7 +9,8 @@ from typing import Optional, Dict, Any
 
 import httpx
 
-from snowleopard.models import parse
+from snowleopard.error import APIBadRequest
+from snowleopard.models import APIError, parse
 
 
 @dataclass
@@ -94,6 +95,8 @@ class SLClientBase:
     def _build_request_body(
         user_query: str, known_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
+        if not isinstance(user_query, str) or not user_query.strip():
+            raise APIBadRequest('userQuery field must not be empty/whitespace')
         body = {"userQuery": user_query}
         if known_data is not None:
             body["knownData"] = known_data
@@ -101,8 +104,13 @@ class SLClientBase:
 
     @staticmethod
     def _parse_retrieve(resp):
+        if resp.status_code not in (400, 409):
+            resp.raise_for_status()
         try:
-            return parse(resp.json())
+            resultObj = parse(resp.json())
         except Exception:
             resp.raise_for_status()
             raise
+        if isinstance(resultObj, APIError) and resp.status_code == 400:
+            raise APIBadRequest(resultObj.description)
+        return resultObj
