@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Any
 
 from httpx import HTTPStatusError
 from snowleopard import __version__, SnowLeopardClient
-from snowleopard.models import RetrieveResponseError
+from snowleopard.error import APIBadRequest
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -82,6 +82,7 @@ def _get_client(parsed_args):
 
 
 def _retrieve(parsed_args):
+    hadErrors = False
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
@@ -91,14 +92,18 @@ def _retrieve(parsed_args):
                 datafile_id=parsed_args.datafile,
             )
             print(json.dumps(dataclasses.asdict(resp)))
-            if isinstance(resp, RetrieveResponseError):
-                sys.exit(1)
+    except APIBadRequest as e:
+        print(f"error: {str(e)}", file=sys.stderr)
+        hadErrors = True
     except HTTPStatusError as e:
         print(str(e), file=sys.stderr)
+        hadErrors = True
+    if hadErrors:
         sys.exit(1)
 
 
 def _response(parsed_args):
+    hadErrors = False
     try:
         known_data = _parse_known_data(parsed_args.knownData)
         with _get_client(parsed_args) as client:
@@ -108,8 +113,13 @@ def _response(parsed_args):
                 datafile_id=parsed_args.datafile,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))
+    except APIBadRequest as e:
+        print(f"error: {str(e)}", file=sys.stderr)
+        hadErrors = True
     except HTTPStatusError as e:
         print(str(e), file=sys.stderr)
+        hadErrors = True
+    if hadErrors:
         sys.exit(1)
 
 

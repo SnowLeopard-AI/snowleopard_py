@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import AsyncIterator, Awaitable, Iterator, TypeVar, Union
 
 import pytest
-from snowleopard.models import RetrieveResponseError, ResponseStatus
+from snowleopard.error import APIBadRequest
+from snowleopard.models import APIError, ResponseStatus
 
 from .conftest import (
     HOW_MANY_SUPERHEROES,
@@ -64,7 +65,7 @@ async def test_retrieve_not_in_schema(any_client, superheroes):
             datafile_id=superheroes,
         )
     )
-    assert isinstance(resp, RetrieveResponseError)
+    assert isinstance(resp, APIError)
     assert (
         resp.description
         == "The data doesn't exist in the schema to answer this question. Please review the schema and ask a different question."
@@ -81,8 +82,30 @@ async def test_retrieve_with_bad_query(any_client, superheroes):
         )
     )
     # currently api is not returning this as error kind, which is definitely confusing
-    # assert isinstance(resp, RetrieveResponseError)
+    # assert isinstance(resp, APIError)
     assert resp.responseStatus == ResponseStatus.INTERNAL_SERVER_ERROR
+
+
+_empty_query_cases = (
+    "",
+    "\t",
+    )
+
+
+@pytest.mark.parametrize("user_query", _empty_query_cases)
+@pytest.mark.asyncio
+async def test_retrieve_with_empty_query(any_client, user_query):
+    with pytest.raises(APIBadRequest) as excinfo:
+        await maybe_await(any_client.retrieve(user_query=user_query))
+    assert excinfo.type is APIBadRequest
+
+
+@pytest.mark.parametrize("user_query", _empty_query_cases)
+@pytest.mark.asyncio
+async def test_response_with_empty_query(any_client, user_query):
+    with pytest.raises(APIBadRequest) as excinfo:
+        [o async for o in maybe_await_iter(any_client.response(user_query=user_query))]
+    assert excinfo.type is APIBadRequest
 
 
 @cassette(HOW_MANY_SUPERHEROES_RESPONSE)
