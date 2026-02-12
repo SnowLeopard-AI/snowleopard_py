@@ -16,21 +16,21 @@ class StrEnum(str, Enum):
 
 
 @dataclass
+class APIError:
+    objType = "apiError"
+
+    callId: str
+    responseStatus: str
+    description: str
+
+
+@dataclass
 class RetrieveResponse:
     objType = "retrieveResponse"
 
     callId: str
     data: List[Union[SchemaData, ErrorSchemaData]]
     responseStatus: ResponseStatus
-
-
-@dataclass
-class RetrieveResponseError:
-    objType = "apiError"
-
-    callId: str
-    responseStatus: str
-    description: str
 
 
 @dataclass
@@ -97,7 +97,7 @@ class ResponseLLMResult:
 
 class ResponseStatus(StrEnum):
     SUCCESS = "SUCCESS"
-    BAD_REQUEST = 'BAD_REQUEST'
+    BAD_REQUEST = "BAD_REQUEST"
     NOT_FOUND_IN_SCHEMA = "NOT_FOUND_IN_SCHEMA"
     UNABLE_TO_UNDERSTAND_QUESTION = "UNABLE_TO_UNDERSTAND_QUESTION"
     UNKNOWN = "UNKNOWN"
@@ -105,13 +105,16 @@ class ResponseStatus(StrEnum):
     AUTHORIZATION_FAILED = "AUTHORIZATION_FAILED"
     LLM_ERROR = "LLM_ERROR"
     LLM_TOKEN_LIMIT_REACHED = "LLM_TOKEN_LIMIT_REACHED"
+    DB_ERROR = "DB_ERROR"
+    DB_CONNECTION_ERROR = "DB_CONNECTION_ERROR"
+    DB_SYNTAX_ERROR = "DB_SYNTAX_ERROR"
 
 
 _PARSE_OBJS = {
     o.objType: o
     for o in (
+        APIError,
         RetrieveResponse,
-        RetrieveResponseError,
         SchemaData,
         ErrorSchemaData,
         ResponseStart,
@@ -121,10 +124,12 @@ _PARSE_OBJS = {
     )
 }
 
-RetrieveResponseObjects = Union[RetrieveResponse, RetrieveResponseError]
+
+RetrieveResponseObjects = Union[APIError, RetrieveResponse]
+
 
 ResponseDataObjects = Union[
-    ErrorSchemaData,
+    APIError,
     ResponseStart,
     ResponseData,
     EarlyTermination,
