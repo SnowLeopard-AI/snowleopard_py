@@ -7,8 +7,7 @@ from typing import AsyncGenerator, Optional, Dict, Any
 
 import httpx
 from snowleopard.client_base import SLClientBase
-from snowleopard.error import APIBadRequest
-from snowleopard.models import APIError, parse, ResponseDataObjects, RetrieveResponseObjects
+from snowleopard.models import parse, ResponseDataObjects, RetrieveResponseObjects
 
 
 class AsyncSnowLeopardClient(SLClientBase):
@@ -50,13 +49,9 @@ class AsyncSnowLeopardClient(SLClientBase):
             self._build_path(datafile_id, "response"),
             json=self._build_request_body(user_query, known_data),
         ) as resp:
-            if resp.status_code not in (400,):
-                resp.raise_for_status()
+            self._raise_for_status(resp)
             async for line in resp.aiter_lines():
-                resultObj = parse(json.loads(line))
-                if isinstance(resultObj, APIError) and resp.status_code == 400:
-                    raise APIBadRequest(resultObj.description)
-                yield resultObj
+                yield parse(json.loads(line))
 
     async def __aenter__(self):
         await self.client.__aenter__()

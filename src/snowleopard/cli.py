@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Any
 
 from httpx import HTTPStatusError
 from snowleopard import __version__, SnowLeopardClient
-from snowleopard.error import APIBadRequest
+from snowleopard.error import APIBadRequest, SLException
 
 
 def _create_parser() -> argparse.ArgumentParser:
@@ -113,11 +113,8 @@ def _response(parsed_args):
                 datafile_id=parsed_args.datafile,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))
-    except APIBadRequest as e:
+    except SLException as e:
         print(f"error: {str(e)}", file=sys.stderr)
-        hadErrors = True
-    except HTTPStatusError as e:
-        print(str(e), file=sys.stderr)
         hadErrors = True
     if hadErrors:
         sys.exit(1)
