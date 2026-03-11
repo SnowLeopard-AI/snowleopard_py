@@ -7,8 +7,7 @@ from typing import Optional, Generator, Dict, Any
 
 import httpx
 from snowleopard.client_base import SLClientBase
-from snowleopard.error import APIBadRequest
-from snowleopard.models import APIError, parse, RetrieveResponseObjects, ResponseDataObjects
+from snowleopard.models import parse, RetrieveResponseObjects, ResponseDataObjects
 
 
 class SnowLeopardClient(SLClientBase):
@@ -50,12 +49,9 @@ class SnowLeopardClient(SLClientBase):
             url=self._build_path(datafile_id, "response"),
             json=self._build_request_body(user_query, known_data),
         ) as resp:
-            if resp.status_code not in (400,):
-                resp.raise_for_status()
+            self._raise_for_status(resp)
             for line in resp.iter_lines():
                 resultObj = parse(json.loads(line))
-                if isinstance(resultObj, APIError) and resp.status_code == 400:
-                    raise APIBadRequest(resultObj.description)
                 yield resultObj
 
     def __enter__(self):

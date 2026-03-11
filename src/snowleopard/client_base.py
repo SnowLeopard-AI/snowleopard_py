@@ -9,8 +9,8 @@ from typing import Optional, Dict, Any
 
 import httpx
 
-from snowleopard.error import APIBadRequest
-from snowleopard.models import APIError, parse
+from snowleopard.error import APIBadRequest, SnowLeopardHTTPError
+from snowleopard.models import parse
 
 
 @dataclass
@@ -103,14 +103,17 @@ class SLClientBase:
         return body
 
     @staticmethod
-    def _parse_retrieve(resp):
-        if resp.status_code not in (400, 409):
-            resp.raise_for_status()
+    def _raise_for_status(resp):
         try:
-            resultObj = parse(resp.json())
-        except Exception:
             resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            raise SnowLeopardHTTPError(e.response.status_code, e.response) from e
+
+    def _parse_retrieve(self, resp):
+        if resp.status_code != 409:
+            self._raise_for_status(resp)
+        try:
+            return parse(resp.json())
+        except Exception:
+            self._raise_for_status(resp)
             raise
-        if isinstance(resultObj, APIError) and resp.status_code == 400:
-            raise APIBadRequest(resultObj.description)
-        return resultObj
