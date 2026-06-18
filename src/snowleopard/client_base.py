@@ -33,6 +33,7 @@ class SLClientBase:
         *,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        instance_id: Optional[str] = None,
         datafile_id: Optional[str] = None,
     ):
         """
@@ -41,6 +42,7 @@ class SLClientBase:
         Takes a natural language question (usually from the user or the agent) and returns the data required to answer
         the query in an LLM-friendly object.
 
+        :param instance_id: (optional) The cloud.snowleopard.ai instance_id
         :param datafile_id: (optional) The playground datafile-id if hitting a Snow Leopard api directly
         :param user_query: Natural language query to execute against the Playground datafile
         :param known_data: Additional context about the user_query
@@ -53,12 +55,14 @@ class SLClientBase:
         *,
         known_data: Optional[Dict[str, Any]] = None,
         user_query: str,
+        instance_id: Optional[str] = None,
         datafile_id: Optional[str] = None,
     ):
         """
         Takes a natural language question (usually from the user or the agent) and returns the data required to answer
         the query as well as a LLM summary of the returned data.
 
+        :param instance_id: (optional) The cloud.snowleopard.ai instance_id
         :param datafile_id: (optional) The playground datafile-id if hitting a Snow Leopard api directly
         :param user_query: Natural language query to execute against the Playground datafile
         :param known_data: (optional) Additional context about the user_query
@@ -85,11 +89,12 @@ class SLClientBase:
         return SLConfig(api_key, timeout, loc)
 
     @staticmethod
-    def _build_path(datafile_id: str, endpoint: str) -> str:
-        if datafile_id is None:
-            return endpoint
-        else:
+    def _build_path(instance_id: str | None, datafile_id: str | None, endpoint: str) -> str:
+        if instance_id is not None:
+            return f"v1/instances/{instance_id}/{endpoint}"
+        if datafile_id is not None:
             return f"datafiles/{datafile_id}/{endpoint}"
+        return endpoint
 
     @staticmethod
     def _build_request_body(
