@@ -89,7 +89,7 @@ class SLClientBase:
         return SLConfig(api_key, timeout, loc)
 
     @staticmethod
-    def _build_path(instance_id: str | None, datafile_id: str | None, endpoint: str) -> str:
+    def _build_path(instance_id: Optional[str], datafile_id: Optional[str], endpoint: str) -> str:
         if instance_id is not None:
             return f"v1/instances/{instance_id}/{endpoint}"
         if datafile_id is not None:

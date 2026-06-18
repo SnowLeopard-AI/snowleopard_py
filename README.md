@@ -1,6 +1,6 @@
 # Snow Leopard SDK for Python
 
-This repo contains the Python client library for [Snow Leopard](https://cloud.snowleopard.ai) APIs. 
+This repo contains the Python client library for [Snow Leopard](https://cloud.snowleopard.ai) APIs.
 
 See our [API documentation](https://docs.snowleopard.ai) for more details.
 
