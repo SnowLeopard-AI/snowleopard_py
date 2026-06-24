@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import AsyncIterator, Awaitable, Iterator, TypeVar, Union
 
 import pytest
+from snowleopard.client_base import SLClientBase
 from snowleopard.error import APIBadRequest
 from snowleopard.models import APIError, ResponseStatus
 
@@ -40,6 +41,23 @@ def cassette(cassette_loc: Union[str, Path]):
             pytest.mark.vcr(pytest.mark.asyncio(fn))
         )
     )
+
+
+def test_build_path_instance_only():
+    assert SLClientBase._build_path("my-instance", None, "retrieve") == "v1/instances/my-instance/retrieve"
+
+
+def test_build_path_datafile_only():
+    assert SLClientBase._build_path(None, "my-datafile", "retrieve") == "datafiles/my-datafile/retrieve"
+
+
+def test_build_path_instance_takes_precedence():
+    # instance_id wins when both are provided
+    assert SLClientBase._build_path("my-instance", "my-datafile", "retrieve") == "v1/instances/my-instance/retrieve"
+
+
+def test_build_path_neither():
+    assert SLClientBase._build_path(None, None, "retrieve") == "retrieve"
 
 
 @cassette(HOW_MANY_SUPERHEROES)

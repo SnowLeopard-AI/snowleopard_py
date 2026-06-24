@@ -29,10 +29,11 @@ class SnowLeopardClient(SLClientBase):
         *,
         user_query: str,
         known_data: Optional[Dict[str, Any]] = None,
+        instance_id: Optional[str] = None,
         datafile_id: Optional[str] = None,
     ) -> RetrieveResponseObjects:
         resp = self.client.post(
-            url=self._build_path(datafile_id, "retrieve"),
+            url=self._build_path(instance_id, datafile_id, "retrieve"),
             json=self._build_request_body(user_query, known_data),
         )
         return self._parse_retrieve(resp)
@@ -42,11 +43,12 @@ class SnowLeopardClient(SLClientBase):
         *,
         known_data: Optional[Dict[str, Any]] = None,
         user_query: str,
+        instance_id: Optional[str] = None,
         datafile_id: Optional[str] = None,
     ) -> Generator[ResponseDataObjects, None, None]:
         with self.client.stream(
             "POST",
-            url=self._build_path(datafile_id, "response"),
+            url=self._build_path(instance_id, datafile_id, "response"),
             json=self._build_request_body(user_query, known_data),
         ) as resp:
             self._raise_for_status(resp)

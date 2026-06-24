@@ -42,6 +42,9 @@ def _create_parser() -> argparse.ArgumentParser:
 
     for subparser in (retrieve, response):
         subparser.add_argument(
+            "--instance", "-i", type=str, help="ID for cloud.snowleopard.ai instance to query"
+        )
+        subparser.add_argument(
             "--datafile", "-df", type=str, help="ID for playground datafile to query"
         )
         subparser.add_argument(
@@ -89,6 +92,7 @@ def _retrieve(parsed_args):
             resp = client.retrieve(
                 user_query=parsed_args.question,
                 known_data=known_data,
+                instance_id=parsed_args.instance,
                 datafile_id=parsed_args.datafile,
             )
             print(json.dumps(dataclasses.asdict(resp)))
@@ -110,6 +114,7 @@ def _response(parsed_args):
             for chunk in client.response(
                 known_data=known_data,
                 user_query=parsed_args.question,
+                instance_id=parsed_args.instance,
                 datafile_id=parsed_args.datafile,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))

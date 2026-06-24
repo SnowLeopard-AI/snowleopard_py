@@ -1,8 +1,8 @@
 # Snow Leopard SDK for Python
 
-This repo contains the Python client library for [Snow Leopard Playground](https://try.snowleopard.ai) APIs. 
+This repo contains the Python client library for [Snow Leopard](https://cloud.snowleopard.ai) APIs.
 
-See our [API documentation](https://docs.snowleopard.ai/#api-documentation) for more details.
+See our [API documentation](https://docs.snowleopard.ai) for more details.
 
 ## Installation
 
@@ -19,14 +19,13 @@ from snowleopard import SnowLeopardClient
 client = SnowLeopardClient(api_key="your-api-key")
 
 # Query your data in natural language
-response = client.retrieve(user_query="How many users signed up last month?", datafile_id="your-datafile-id")
+response = client.retrieve(user_query="How many users signed up last month?", instance_id="your-instance-id")
 ```
 
 ## Getting Started
 
-1. **Get your API key** from [https://auth.snowleopard.ai/account/api_keys](https://auth.snowleopard.ai/account/api_keys)
-2. **Upload your datafiles** at [https://try.snowleopard.ai](https://try.snowleopard.ai)
-3. **Set your API key** via environment variable:
+1. **Try Snow Leopard here** [https://cloud.snowleopard.ai](https://cloud.snowleopard.ai)
+2. **Set your API key** via environment variable:
     ```bash
     export SNOWLEOPARD_API_KEY="your-api-key"
     ```
@@ -75,14 +74,14 @@ The SDK includes a command-line interface:
 
 ```bash
 pip install snowleopard
-snowy retrieve --datafile <datafile-id> "How many records are there?"
-snowy response --datafile <datafile-id> "Summarize the data"
+snowy retrieve --instance <instance-id> "How many records are there?"
+snowy response --instance <instance-id> "Summarize the data"
 ```
 
-### On Premise Customers
+### On-Premises Customers
 
 For our customers who have a separate deployment per dataset, you should declare <url> explicitly when creating a 
-client and omit <datafile id> when querying.
+client and omit <instance_id> when querying.
 
 Example:
 ```python
