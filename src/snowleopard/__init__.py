@@ -6,7 +6,7 @@ from snowleopard.async_client import AsyncSnowLeopardClient
 from snowleopard.client import SnowLeopardClient
 from snowleopard.error import APIBadRequest, SnowLeopardHTTPError, SLException
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "SnowLeopardClient",
