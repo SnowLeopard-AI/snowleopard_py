@@ -39,6 +39,10 @@ def _create_parser() -> argparse.ArgumentParser:
         "response", help="Get streaming response for natural language query"
     )
     response.set_defaults(command_func=_response)
+    feedback = subparsers.add_parser(
+        "feedback", help="Submit feedback about a datasource or schema"
+    )
+    feedback.set_defaults(command_func=_feedback)
 
     for subparser in (retrieve, response):
         subparser.add_argument(
@@ -54,6 +58,17 @@ def _create_parser() -> argparse.ArgumentParser:
             help="Known data in key=value format (can be specified multiple times)",
         )
         subparser.add_argument("question", type=str, help="Natural language query")
+
+    feedback.add_argument(
+        "--instance", "-i", type=str, help="ID for cloud.snowleopard.ai instance to submit feedback to"
+    )
+    feedback.add_argument(
+        "--datasource", "-ds", type=str, help="ID of the datasource the feedback relates to"
+    )
+    feedback.add_argument(
+        "--schema", "-s", type=str, help="ID of the schema the feedback relates to"
+    )
+    feedback.add_argument("feedback_text", type=str, help="Feedback text")
 
     return parser
 
@@ -118,6 +133,24 @@ def _response(parsed_args):
                 datafile_id=parsed_args.datafile,
             ):
                 print(json.dumps(dataclasses.asdict(chunk)))
+    except SLException as e:
+        print(f"error: {str(e)}", file=sys.stderr)
+        hadErrors = True
+    if hadErrors:
+        sys.exit(1)
+
+
+def _feedback(parsed_args):
+    hadErrors = False
+    try:
+        with _get_client(parsed_args) as client:
+            resp = client.feedback(
+                feedback_text=parsed_args.feedback_text,
+                instance_id=parsed_args.instance,
+                datasource_id=parsed_args.datasource,
+                schema_id=parsed_args.schema,
+            )
+            print(json.dumps(dataclasses.asdict(resp)))
     except SLException as e:
         print(f"error: {str(e)}", file=sys.stderr)
         hadErrors = True

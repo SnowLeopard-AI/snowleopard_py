@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 import httpx
 
 from snowleopard.error import APIBadRequest, SnowLeopardHTTPError
-from snowleopard.models import parse
+from snowleopard.models import FeedbackResponse, parse, parse_feedback
 
 
 @dataclass
@@ -69,6 +69,26 @@ class SLClientBase:
         """
         ...
 
+    @abstractmethod
+    def feedback(
+        self,
+        *,
+        feedback_text: str,
+        instance_id: Optional[str] = None,
+        datasource_id: Optional[str] = None,
+        schema_id: Optional[str] = None,
+    ):
+        """
+        Give Snow Leopard feedback in plain text so it can understand your business
+        logic and ontology better for more accurate answers.
+
+        :param feedback_text: Feedback text to record
+        :param instance_id: (optional) The cloud.snowleopard.ai instance_id
+        :param datasource_id: (optional) The datasource the feedback relates to
+        :param schema_id: (optional) The schema the feedback relates to
+        """
+        ...
+
     @staticmethod
     def _config(
         api_key: Optional[str], timeout: Optional[httpx.Timeout], loc: Optional[str]
@@ -108,6 +128,21 @@ class SLClientBase:
         return body
 
     @staticmethod
+    def _build_feedback_body(
+        feedback_text: str,
+        datasource_id: Optional[str] = None,
+        schema_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        if not isinstance(feedback_text, str) or not feedback_text.strip():
+            raise APIBadRequest('feedbackText field must not be empty/whitespace')
+        body = {"feedbackText": feedback_text}
+        if datasource_id is not None:
+            body["datasourceId"] = datasource_id
+        if schema_id is not None:
+            body["schemaId"] = schema_id
+        return body
+
+    @staticmethod
     def _raise_for_status(resp):
         try:
             resp.raise_for_status()
@@ -122,3 +157,7 @@ class SLClientBase:
         except Exception:
             self._raise_for_status(resp)
             raise
+
+    def _parse_feedback(self, resp) -> FeedbackResponse:
+        self._raise_for_status(resp)
+        return parse_feedback(resp.json())
