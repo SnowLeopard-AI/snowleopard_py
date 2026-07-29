@@ -74,7 +74,7 @@ class SLClientBase:
         self,
         *,
         feedback_text: str,
-        instance_id: Optional[str] = None,
+        instance_id: str,
         datasource_id: Optional[str] = None,
         schema_id: Optional[str] = None,
     ):
@@ -83,7 +83,7 @@ class SLClientBase:
         logic and ontology better for more accurate answers.
 
         :param feedback_text: Feedback text to record
-        :param instance_id: (optional) The cloud.snowleopard.ai instance_id
+        :param instance_id: The cloud.snowleopard.ai instance_id
         :param datasource_id: (optional) The datasource the feedback relates to
         :param schema_id: (optional) The schema the feedback relates to
         """
@@ -126,6 +126,11 @@ class SLClientBase:
         if known_data is not None:
             body["knownData"] = known_data
         return body
+
+    @staticmethod
+    def _require_instance_id(instance_id: str) -> None:
+        if not isinstance(instance_id, str) or not instance_id.strip():
+            raise APIBadRequest('instance_id is required')
 
     @staticmethod
     def _build_feedback_body(

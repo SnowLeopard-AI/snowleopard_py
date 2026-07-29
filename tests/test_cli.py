@@ -154,7 +154,17 @@ def _mock_client_class(handler):
 @pytest.mark.parametrize("feedback_text", _empty_query_cases)
 def test_feedback_command_blank_text(capsys, loc, api_key, feedback_text):
     try:
-        main(["-l", loc, "-a", api_key, "feedback", feedback_text])
+        main(["-l", loc, "-a", api_key, "feedback", "-i", "inst-1", feedback_text])
+    except SystemExit as e:
+        assert e.code == 1
+
+    captured = capsys.readouterr()
+    assert "error:" in captured.err
+
+
+def test_feedback_command_missing_instance(capsys, loc, api_key):
+    try:
+        main(["-l", loc, "-a", api_key, "feedback", "some feedback"])
     except SystemExit as e:
         assert e.code == 1
 
@@ -212,7 +222,7 @@ def test_feedback_command_http_error(monkeypatch, capsys, loc, api_key):
     monkeypatch.setattr("snowleopard.cli.SnowLeopardClient", _mock_client_class(handler))
 
     try:
-        main(["-l", loc, "-a", api_key, "feedback", "some feedback"])
+        main(["-l", loc, "-a", api_key, "feedback", "-i", "inst-1", "some feedback"])
     except SystemExit as e:
         assert e.code == 1
 

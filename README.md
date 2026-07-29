@@ -55,7 +55,8 @@ with SnowLeopardClient() as client:
    # Give feedback to help Snow Leopard understand your business logic better
    client.feedback(
       feedback_text="The revenue column in the orders table should be labeled "
-      "'gross revenue before discounts', not 'net revenue'."
+      "'gross revenue before discounts', not 'net revenue'.",
+      instance_id="<instance-id>"
    )
 ```
 
@@ -76,7 +77,8 @@ async with AsyncSnowLeopardClient() as client:
    # Give feedback to help Snow Leopard understand your business logic better
    await client.feedback(
       feedback_text="The revenue column in the orders table should be labeled "
-      "'gross revenue before discounts', not 'net revenue'."
+      "'gross revenue before discounts', not 'net revenue'.",
+      instance_id="<instance-id>"
    )
 ```
 
