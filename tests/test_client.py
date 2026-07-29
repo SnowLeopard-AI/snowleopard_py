@@ -1,11 +1,13 @@
+import json
 from inspect import isawaitable
 from pathlib import Path
 from typing import AsyncIterator, Awaitable, Iterator, TypeVar, Union
 
+import httpx
 import pytest
 from snowleopard.client_base import SLClientBase
-from snowleopard.error import APIBadRequest
-from snowleopard.models import APIError, ResponseStatus
+from snowleopard.error import APIBadRequest, SnowLeopardHTTPError
+from snowleopard.models import APIError, FeedbackResponse, ResponseStatus
 
 from .conftest import (
     HOW_MANY_SUPERHEROES,
@@ -58,6 +60,19 @@ def test_build_path_instance_takes_precedence():
 
 def test_build_path_neither():
     assert SLClientBase._build_path(None, None, "retrieve") == "retrieve"
+
+
+def test_build_path_feedback_instance():
+    assert (
+        SLClientBase._build_path("my-instance", None, "feedback")
+        == "v1/instances/my-instance/feedback"
+    )
+
+
+def test_build_path_feedback_neither():
+    # /feedback is not served by the datafile deployment, so callers always
+    # pass datafile_id=None; with no instance_id either, the bare endpoint is used.
+    assert SLClientBase._build_path(None, None, "feedback") == "feedback"
 
 
 @cassette(HOW_MANY_SUPERHEROES)
@@ -142,3 +157,152 @@ async def test_response_with_success(any_client, superheroes, how_many_superhero
         "responseResult",
     }
     assert "6895" in str(resp)
+
+
+@pytest.mark.parametrize("feedback_text", _empty_query_cases)
+@pytest.mark.asyncio
+async def test_feedback_with_empty_text(any_mock_client, feedback_text):
+    def handler(request):
+        raise AssertionError("no request should be issued for invalid feedback_text")
+
+    client = any_mock_client(handler)
+    with pytest.raises(APIBadRequest) as excinfo:
+        await maybe_await(
+            client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+        )
+    assert excinfo.type is APIBadRequest
+
+
+_missing_instance_id_cases = (None, "", "\t")
+
+
+@pytest.mark.parametrize("instance_id", _missing_instance_id_cases)
+@pytest.mark.asyncio
+async def test_feedback_with_missing_instance_id(any_mock_client, feedback_text, instance_id):
+    def handler(request):
+        raise AssertionError("no request should be issued for a missing instance_id")
+
+    client = any_mock_client(handler)
+    with pytest.raises(APIBadRequest) as excinfo:
+        await maybe_await(
+            client.feedback(feedback_text=feedback_text, instance_id=instance_id)
+        )
+    assert excinfo.type is APIBadRequest
+
+
+@pytest.mark.asyncio
+async def test_feedback_success(any_mock_client, feedback_text):
+    def handler(request):
+        return httpx.Response(
+            202,
+            json={"ok": True, "feedbackId": "fb_123", "gateStatus": "raw"},
+        )
+
+    client = any_mock_client(handler)
+    resp = await maybe_await(
+        client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+    )
+    assert resp == FeedbackResponse(
+        ok=True, feedbackId="fb_123", gateStatus="raw", truncated=False
+    )
+
+
+@pytest.mark.asyncio
+async def test_feedback_truncated(any_mock_client, feedback_text):
+    def handler(request):
+        return httpx.Response(
+            202,
+            json={
+                "ok": True,
+                "feedbackId": "fb_123",
+                "gateStatus": "raw",
+                "truncated": True,
+            },
+        )
+
+    client = any_mock_client(handler)
+    resp = await maybe_await(
+        client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+    )
+    assert resp.truncated is True
+
+
+@pytest.mark.asyncio
+async def test_feedback_sends_optional_fields(any_mock_client, feedback_text):
+    captured = {}
+
+    def handler(request):
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(
+            202, json={"ok": True, "feedbackId": "fb_123", "gateStatus": "raw"}
+        )
+
+    client = any_mock_client(handler)
+    await maybe_await(
+        client.feedback(
+            feedback_text=feedback_text,
+            instance_id="inst-1",
+            datasource_id="ds-42",
+            schema_id="orders_v2",
+        )
+    )
+    assert captured["body"] == {
+        "feedbackText": feedback_text,
+        "datasourceId": "ds-42",
+        "schemaId": "orders_v2",
+    }
+
+
+@pytest.mark.asyncio
+async def test_feedback_omits_absent_optional_fields(any_mock_client, feedback_text):
+    captured = {}
+
+    def handler(request):
+        captured["body"] = json.loads(request.content)
+        return httpx.Response(
+            202, json={"ok": True, "feedbackId": "fb_123", "gateStatus": "raw"}
+        )
+
+    client = any_mock_client(handler)
+    await maybe_await(
+        client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+    )
+    assert captured["body"] == {"feedbackText": feedback_text}
+
+
+@pytest.mark.asyncio
+async def test_feedback_path_with_instance(any_mock_client, feedback_text):
+    captured = {}
+
+    def handler(request):
+        captured["path"] = request.url.path
+        return httpx.Response(
+            202, json={"ok": True, "feedbackId": "fb_123", "gateStatus": "raw"}
+        )
+
+    client = any_mock_client(handler)
+    await maybe_await(
+        client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+    )
+    assert captured["path"] == "/v1/instances/inst-1/feedback"
+
+
+_feedback_error_cases = (
+    (400, {"callId": "call-1", "responseStatus": "BAD_REQUEST", "description": "bad", "__type__": "apiError"}),
+    (500, {"callId": "call-2", "responseStatus": "INTERNAL_SERVER_ERROR", "description": "oops", "__type__": "apiError"}),
+    (500, {"ok": False, "error": "something went wrong"}),
+)
+
+
+@pytest.mark.parametrize("status_code, body", _feedback_error_cases)
+@pytest.mark.asyncio
+async def test_feedback_raises_on_error(any_mock_client, feedback_text, status_code, body):
+    def handler(request):
+        return httpx.Response(status_code, json=body)
+
+    client = any_mock_client(handler)
+    with pytest.raises(SnowLeopardHTTPError) as excinfo:
+        await maybe_await(
+            client.feedback(feedback_text=feedback_text, instance_id="inst-1")
+        )
+    assert excinfo.value.status_code == status_code
