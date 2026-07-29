@@ -7,7 +7,12 @@ from typing import Optional, Generator, Dict, Any
 
 import httpx
 from snowleopard.client_base import SLClientBase
-from snowleopard.models import parse, RetrieveResponseObjects, ResponseDataObjects
+from snowleopard.models import (
+    FeedbackResponse,
+    parse,
+    RetrieveResponseObjects,
+    ResponseDataObjects,
+)
 
 
 class SnowLeopardClient(SLClientBase):
@@ -55,6 +60,21 @@ class SnowLeopardClient(SLClientBase):
             for line in resp.iter_lines():
                 resultObj = parse(json.loads(line))
                 yield resultObj
+
+    def feedback(
+        self,
+        *,
+        feedback_text: str,
+        instance_id: str,
+        datasource_id: Optional[str] = None,
+        schema_id: Optional[str] = None,
+    ) -> FeedbackResponse:
+        self._require_instance_id(instance_id)
+        resp = self.client.post(
+            url=self._build_path(instance_id, None, "feedback"),
+            json=self._build_feedback_body(feedback_text, datasource_id, schema_id),
+        )
+        return self._parse_feedback(resp)
 
     def __enter__(self):
         self.client.__enter__()

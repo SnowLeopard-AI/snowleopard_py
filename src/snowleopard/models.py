@@ -95,6 +95,16 @@ class ResponseLLMResult:
     llmResponse: Dict[str, Any]
 
 
+@dataclass
+class FeedbackResponse:
+    # unlike the other response objects, /feedback bodies carry no __type__
+    # discriminator, so this is not registered in _PARSE_OBJS and has no objType.
+    ok: bool
+    feedbackId: str
+    gateStatus: str
+    truncated: bool = False
+
+
 class ResponseStatus(StrEnum):
     SUCCESS = "SUCCESS"
     BAD_REQUEST = "BAD_REQUEST"
@@ -150,3 +160,9 @@ def parse(obj):
         return [parse(v) for v in obj]
     else:
         return obj
+
+
+def parse_feedback(obj: Dict[str, Any]) -> FeedbackResponse:
+    """Parse a /feedback response body, which carries no __type__ discriminator."""
+    keys = {f.name for f in fields(FeedbackResponse)}
+    return FeedbackResponse(**{k: v for k, v in obj.items() if k in keys})

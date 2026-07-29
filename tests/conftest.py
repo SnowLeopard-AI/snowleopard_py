@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Union
 from urllib.request import Request
 
+import httpx
 import pytest
 from dotenv import load_dotenv
 from snowleopard.async_client import AsyncSnowLeopardClient
@@ -68,3 +69,33 @@ def any_client(
 @pytest.fixture
 def how_many_superheroes_q():
     return "How many superheroes are there?"
+
+
+@pytest.fixture
+def feedback_text():
+    return "the revenue totals looked wrong"
+
+
+@pytest.fixture(params=["client", "async_client"])
+def any_mock_client(request, api_key, loc):
+    """Factory fixture: given a handler(request) -> httpx.Response, returns a
+    client (sync or async, parametrized) whose transport is an httpx.MockTransport
+    wired to that handler. Used for /feedback tests, where there is no service to
+    record cassettes against.
+    """
+
+    def make(handler):
+        transport = httpx.MockTransport(handler)
+        if request.param == "client":
+            client = SnowLeopardClient(api_key=api_key, loc=loc)
+            client.client = httpx.Client(
+                base_url=loc, headers=client.client.headers, transport=transport
+            )
+        else:
+            client = AsyncSnowLeopardClient(api_key=api_key, loc=loc)
+            client.client = httpx.AsyncClient(
+                base_url=loc, headers=client.client.headers, transport=transport
+            )
+        return client
+
+    return make

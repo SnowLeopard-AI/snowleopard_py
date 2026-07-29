@@ -51,6 +51,13 @@ with SnowLeopardClient() as client:
    # Stream natural language summary of live data
    for chunk in client.response(user_query="How many superheroes are there?"):
       print(chunk)
+
+   # Give feedback to help Snow Leopard understand your business logic better
+   client.feedback(
+      feedback_text="The revenue column in the orders table should be labeled "
+      "'gross revenue before discounts', not 'net revenue'.",
+      instance_id="<instance-id>"
+   )
 ```
 
 ### Async Client
@@ -66,6 +73,13 @@ async with AsyncSnowLeopardClient() as client:
    # Get streaming results
    async for chunk in client.response(user_query="How many superheroes are there?"):
       print(chunk)
+
+   # Give feedback to help Snow Leopard understand your business logic better
+   await client.feedback(
+      feedback_text="The revenue column in the orders table should be labeled "
+      "'gross revenue before discounts', not 'net revenue'.",
+      instance_id="<instance-id>"
+   )
 ```
 
 ### CLI
@@ -76,6 +90,7 @@ The SDK includes a command-line interface:
 pip install snowleopard
 snowy retrieve --instance <instance-id> "How many records are there?"
 snowy response --instance <instance-id> "Summarize the data"
+snowy feedback --instance <instance-id> "The revenue totals looked wrong"
 ```
 
 ### On-Premises Customers
